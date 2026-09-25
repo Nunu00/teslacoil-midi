@@ -3,6 +3,7 @@ import SwiftUI
 public struct SettingsView: View {
     @ObservedObject var engine = MIDIPlaybackEngine.shared
     @ObservedObject var btService = BluetoothService.shared
+    @ObservedObject var audioSynth = AudioToneSynthesizer.shared
     @Environment(\.dismiss) var dismiss
     
     var ontimeColor: Color {
@@ -112,6 +113,62 @@ public struct SettingsView: View {
                             Text("Le note con frequenza superiore a questo limite verranno automaticamente ignorate per evitare il surriscaldamento del circuito risonante.")
                                 .font(.caption2)
                                 .foregroundColor(.gray)
+                        }
+                        .padding()
+                        .background(Color(red: 0.12, green: 0.14, blue: 0.20))
+                        .cornerRadius(12)
+                        
+                        // SEZIONE AUDIO ALTOPARLANTE IPHONE (ANTEPRIMA)
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "speaker.wave.3.fill")
+                                    .foregroundColor(.cyan)
+                                Text("ANTEPRIMA AUDIO SU IPHONE")
+                                    .font(.caption)
+                                    .bold()
+                                    .foregroundColor(.gray)
+                                Spacer()
+                                Toggle("", isOn: $audioSynth.isSpeakerEnabled)
+                                    .labelsHidden()
+                                    .tint(.cyan)
+                            }
+                            
+                            Text("Ascolta i brani musicali direttamente dall'altoparlante del tuo iPhone prima di suonarli sulla bobina di Tesla.")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                            
+                            Divider().background(Color.gray.opacity(0.3))
+                            
+                            // Modalità Timbro
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Timbro Simulatore:")
+                                    .font(.caption2)
+                                    .foregroundColor(.gray)
+                                
+                                Picker("Modalità Audio", selection: $audioSynth.previewMode) {
+                                    ForEach(AudioPreviewMode.allCases) { mode in
+                                        Text(mode.rawValue).tag(mode)
+                                    }
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                            }
+                            
+                            // Volume
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text("Volume Altoparlante:")
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
+                                    Spacer()
+                                    Text("\(Int(audioSynth.volume * 100))%")
+                                        .font(.caption2)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                }
+                                
+                                Slider(value: $audioSynth.volume, in: 0.1...1.0)
+                                    .tint(.cyan)
+                            }
                         }
                         .padding()
                         .background(Color(red: 0.12, green: 0.14, blue: 0.20))

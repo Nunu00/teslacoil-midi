@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 public struct SongListView: View {
     @ObservedObject var storage = SongStorageService.shared
     @ObservedObject var engine = MIDIPlaybackEngine.shared
+    @ObservedObject var audioSynth = AudioToneSynthesizer.shared
     @Environment(\.dismiss) var dismiss
     
     @State private var isShowingFilePicker = false
@@ -41,6 +42,31 @@ public struct SongListView: View {
                     }
                     .padding()
                     
+                    // Banner Anteprima Audio Altoparlante
+                    HStack {
+                        Image(systemName: audioSynth.isSpeakerEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                            .foregroundColor(audioSynth.isSpeakerEnabled ? .green : .gray)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Anteprima Altoparlante iPhone")
+                                .font(.subheadline)
+                                .bold()
+                                .foregroundColor(.white)
+                            Text(audioSynth.isSpeakerEnabled ? "Attivo - puoi ascoltare i brani prima della bobina" : "Muto - tocca per abilitare l'audio del telefono")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
+                        Toggle("", isOn: $audioSynth.isSpeakerEnabled)
+                            .labelsHidden()
+                            .tint(.green)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color(red: 0.12, green: 0.14, blue: 0.20))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                    
                     if let err = importErrorMessage {
                         Text(err)
                             .font(.caption)
@@ -76,48 +102,68 @@ public struct SongListView: View {
                             ForEach(filteredSongs) { song in
                                 let isCurrent = (engine.currentSong?.id == song.id)
                                 
-                                Button(action: {
-                                    engine.load(song: song)
-                                    engine.play()
-                                    dismiss()
-                                }) {
-                                    HStack {
-                                        Image(systemName: isCurrent && engine.isPlaying ? "waveform" : "music.note")
-                                            .foregroundColor(isCurrent ? .cyan : .gray)
-                                            .font(.title3)
-                                            .frame(width: 32)
-                                        
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(song.title)
-                                                .font(.headline)
-                                                .foregroundColor(isCurrent ? .cyan : .white)
+                                HStack {
+                                    // Tocco sul brano per selezionarlo e chiudere
+                                    Button(action: {
+                                        engine.load(song: song)
+                                        engine.play()
+                                        dismiss()
+                                    }) {
+                                        HStack {
+                                            Image(systemName: isCurrent && engine.isPlaying ? "waveform" : "music.note")
+                                                .foregroundColor(isCurrent ? .cyan : .gray)
+                                                .font(.title3)
+                                                .frame(width: 32)
                                             
-                                            HStack(spacing: 8) {
-                                                Text(formatTime(song.duration))
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                                Text("•")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                                Text("\(song.totalNotes) note")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                                Text("•")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                                Text("\(song.channels.count) canali")
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(song.title)
+                                                    .font(.headline)
+                                                    .foregroundColor(isCurrent ? .cyan : .white)
+                                                
+                                                HStack(spacing: 8) {
+                                                    Text(formatTime(song.duration))
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                    Text("•")
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                    Text("\(song.totalNotes) note")
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                    Text("•")
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                    Text("\(song.channels.count) canali")
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                }
                                             }
+                                            Spacer()
                                         }
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: isCurrent && engine.isPlaying ? "pause.fill" : "play.fill")
-                                            .foregroundColor(isCurrent ? .cyan : .white.opacity(0.7))
                                     }
-                                    .padding(.vertical, 6)
+                                    .buttonStyle(PlainButtonStyle())
+                                    
+                                    // Pulsante Ascolto rapido anteprima direttamente in lista
+                                    Button(action: {
+                                        if isCurrent && engine.isPlaying {
+                                            engine.pause()
+                                        } else {
+                                            if !isCurrent {
+                                                engine.load(song: song)
+                                            }
+                                            // Assicurati che l'altoparlante sia attivo quando l'utente preme ascolta
+                                            audioSynth.isSpeakerEnabled = true
+                                            engine.play()
+                                        }
+                                    }) {
+                                        Image(systemName: isCurrent && engine.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                            .font(.title2)
+                                            .foregroundColor(isCurrent && engine.isPlaying ? .cyan : .white.opacity(0.8))
+                                            .padding(6)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
                                 }
+                                .padding(.vertical, 6)
                                 .listRowBackground(isCurrent ? Color.cyan.opacity(0.12) : Color(red: 0.12, green: 0.14, blue: 0.20))
                             }
                             .onDelete { indexSet in

@@ -1,0 +1,6 @@
+*.ipa
+*.zip
+TeslaMIDI-SideStore/
+build/
+DerivedData/
+.DS_Store

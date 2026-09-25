@@ -59,10 +59,15 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "TeslaMIDI v1.0.0 - IPA per SideStore / AltStore"
+          tag_name: v1.1.0
+          name: "TeslaMIDI v1.1.0 - IPA con Anteprima Audio iPhone"
           body: |
-            ### ⚡ TeslaMIDI - Bobina di Tesla Bluetooth Interrupter per iOS
+            ### ⚡ TeslaMIDI v1.1.0 - Bobina di Tesla Bluetooth Interrupter per iOS
+            
+            Novità in v1.1.0:
+            - 🔊 **Anteprima Audio Altoparlante iPhone**: ora puoi ascoltare qualsiasi file MIDI direttamente dall'altoparlante del tuo iPhone prima di riprodurlo sulla bobina!
+            - 🎵 **Simulatore Arco e Timbro Synth**: emula il suono dell'arco prima dell'accensione ad alta tensione.
+            - ⚡ **Pulsante Ascolta Rapido** nella libreria brani.
             
             Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** per installarla!
           files: TeslaMIDI.ipa

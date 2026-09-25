@@ -13,6 +13,7 @@
 		82F0108CC8ED666F8AC4E280 /* BluetoothService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */; };
 		F8DFF1382E2F1C17B3CE205D /* MIDIPlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */; };
 		2281130670330A751B91DAB3 /* SongStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */; };
+		F428616222C765615FD30ED7 /* AudioToneSynthesizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF14852F415FE6D5FADBBD7 /* AudioToneSynthesizer.swift */; };
 		95FD9077DC972C19F457595B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C58B582319032E80BE2E97 /* ContentView.swift */; };
 		468BEE59AC5018C528DC4317 /* SongListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAA568E0D94DA955F92E876C /* SongListView.swift */; };
 		E1F1B03AB794623E8AD6EBEB /* TrackSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F42A2FD609BA74084B78F7 /* TrackSelectorView.swift */; };
@@ -31,6 +32,7 @@
 		6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothService.swift; sourceTree = "<group>"; };
 		0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIPlaybackEngine.swift; sourceTree = "<group>"; };
 		DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongStorageService.swift; sourceTree = "<group>"; };
+		1AF14852F415FE6D5FADBBD7 /* AudioToneSynthesizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioToneSynthesizer.swift; sourceTree = "<group>"; };
 		13C58B582319032E80BE2E97 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BAA568E0D94DA955F92E876C /* SongListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongListView.swift; sourceTree = "<group>"; };
 		11F42A2FD609BA74084B78F7 /* TrackSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackSelectorView.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */,
 				0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */,
 				DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */,
+				1AF14852F415FE6D5FADBBD7 /* AudioToneSynthesizer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -199,6 +202,7 @@
 				82F0108CC8ED666F8AC4E280 /* BluetoothService.swift in Sources */,
 				F8DFF1382E2F1C17B3CE205D /* MIDIPlaybackEngine.swift in Sources */,
 				2281130670330A751B91DAB3 /* SongStorageService.swift in Sources */,
+				F428616222C765615FD30ED7 /* AudioToneSynthesizer.swift in Sources */,
 				95FD9077DC972C19F457595B /* ContentView.swift in Sources */,
 				468BEE59AC5018C528DC4317 /* SongListView.swift in Sources */,
 				E1F1B03AB794623E8AD6EBEB /* TrackSelectorView.swift in Sources */,

@@ -277,6 +277,7 @@ public class MIDIPlaybackEngine: ObservableObject {
             if let current = currentlySoundingPitch {
                 BluetoothService.shared.sendNoteOff(channel: 0, pitch: current)
                 currentlySoundingPitch = nil
+                AudioToneSynthesizer.shared.stopTone()
                 DispatchQueue.main.async {
                     self.resetVisuals()
                 }
@@ -310,6 +311,9 @@ public class MIDIPlaybackEngine: ObservableObject {
             let period = MIDINoteHelper.periodMicroseconds(for: selectedPitch)
             let duty = period > 0 ? (Double(ontimeUs) / period) * 100.0 : 0.0
             
+            // Riproduci il tono attraverso l'altoparlante dell'iPhone per l'anteprima
+            AudioToneSynthesizer.shared.playTone(frequency: freq)
+            
             DispatchQueue.main.async {
                 self.currentPitch = selectedPitch
                 self.currentNoteName = noteName
@@ -322,6 +326,7 @@ public class MIDIPlaybackEngine: ObservableObject {
     }
     
     private func silenceCoilImmediate() {
+        AudioToneSynthesizer.shared.stopTone()
         if let current = currentlySoundingPitch {
             BluetoothService.shared.sendNoteOff(channel: 0, pitch: current)
             currentlySoundingPitch = nil

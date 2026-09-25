@@ -4,6 +4,7 @@ public struct ContentView: View {
     @ObservedObject var engine = MIDIPlaybackEngine.shared
     @ObservedObject var btService = BluetoothService.shared
     @ObservedObject var storage = SongStorageService.shared
+    @ObservedObject var audioSynth = AudioToneSynthesizer.shared
     
     @State private var isShowingSongList = false
     @State private var isShowingBluetooth = false
@@ -280,6 +281,36 @@ public struct ContentView: View {
                     .background(Color.cyan.opacity(0.15))
                     .cornerRadius(8)
                 }
+            }
+            
+            // Toggle Altoparlante iPhone (Anteprima Audio)
+            HStack {
+                Button(action: {
+                    audioSynth.isSpeakerEnabled.toggle()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: audioSynth.isSpeakerEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                            .foregroundColor(audioSynth.isSpeakerEnabled ? .green : .gray)
+                        Text(audioSynth.isSpeakerEnabled ? "Audio iPhone: ATTIVO" : "Audio iPhone: MUTO")
+                            .font(.caption2)
+                            .bold()
+                            .foregroundColor(audioSynth.isSpeakerEnabled ? .white : .gray)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(audioSynth.isSpeakerEnabled ? Color.green.opacity(0.18) : Color.gray.opacity(0.15))
+                    .cornerRadius(8)
+                }
+                
+                Spacer()
+                
+                Text(audioSynth.previewMode == .teslaCoil ? "Simulatore Arco" : "Sintetizzatore")
+                    .font(.caption2)
+                    .foregroundColor(.cyan.opacity(0.8))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.cyan.opacity(0.1))
+                    .cornerRadius(6)
             }
             
             // Barra Scrubber Timeline

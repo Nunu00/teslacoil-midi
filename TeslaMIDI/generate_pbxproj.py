@@ -25,6 +25,7 @@ pbx = f"""// !$*UTF8*$!
 		{det_id("BF_BTService") } /* BluetoothService.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_BTService")} /* BluetoothService.swift */; }};
 		{det_id("BF_Engine") } /* MIDIPlaybackEngine.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_Engine")} /* MIDIPlaybackEngine.swift */; }};
 		{det_id("BF_Storage") } /* SongStorageService.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_Storage")} /* SongStorageService.swift */; }};
+		{det_id("BF_AudioSynth") } /* AudioToneSynthesizer.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_AudioSynth")} /* AudioToneSynthesizer.swift */; }};
 		{det_id("BF_Content") } /* ContentView.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_Content")} /* ContentView.swift */; }};
 		{det_id("BF_SongList") } /* SongListView.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_SongList")} /* SongListView.swift */; }};
 		{det_id("BF_TrackSel") } /* TrackSelectorView.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_TrackSel")} /* TrackSelectorView.swift */; }};
@@ -43,6 +44,7 @@ pbx = f"""// !$*UTF8*$!
 		{det_id("FR_BTService") } /* BluetoothService.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothService.swift; sourceTree = "<group>"; }};
 		{det_id("FR_Engine") } /* MIDIPlaybackEngine.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIPlaybackEngine.swift; sourceTree = "<group>"; }};
 		{det_id("FR_Storage") } /* SongStorageService.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongStorageService.swift; sourceTree = "<group>"; }};
+		{det_id("FR_AudioSynth") } /* AudioToneSynthesizer.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioToneSynthesizer.swift; sourceTree = "<group>"; }};
 		{det_id("FR_Content") } /* ContentView.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; }};
 		{det_id("FR_SongList") } /* SongListView.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongListView.swift; sourceTree = "<group>"; }};
 		{det_id("FR_TrackSel") } /* TrackSelectorView.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackSelectorView.swift; sourceTree = "<group>"; }};
@@ -104,6 +106,7 @@ pbx = f"""// !$*UTF8*$!
 				{det_id("FR_BTService") } /* BluetoothService.swift */,
 				{det_id("FR_Engine") } /* MIDIPlaybackEngine.swift */,
 				{det_id("FR_Storage") } /* SongStorageService.swift */,
+				{det_id("FR_AudioSynth") } /* AudioToneSynthesizer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -211,6 +214,7 @@ pbx = f"""// !$*UTF8*$!
 				{det_id("BF_BTService") } /* BluetoothService.swift in Sources */,
 				{det_id("BF_Engine") } /* MIDIPlaybackEngine.swift in Sources */,
 				{det_id("BF_Storage") } /* SongStorageService.swift in Sources */,
+				{det_id("BF_AudioSynth") } /* AudioToneSynthesizer.swift in Sources */,
 				{det_id("BF_Content") } /* ContentView.swift in Sources */,
 				{det_id("BF_SongList") } /* SongListView.swift in Sources */,
 				{det_id("BF_TrackSel") } /* TrackSelectorView.swift in Sources */,
