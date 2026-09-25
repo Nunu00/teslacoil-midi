@@ -7,6 +7,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build & Package IPA
@@ -51,3 +54,17 @@ jobs:
           path: TeslaMIDI.ipa
           retention-days: 30
           if-no-files-found: error
+
+      - name: Publish GitHub Release with Direct IPA Download
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "TeslaMIDI v1.0.0 - IPA per SideStore / AltStore"
+          body: |
+            ### ⚡ TeslaMIDI - Bobina di Tesla Bluetooth Interrupter per iOS
+            
+            Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** per installarla!
+          files: TeslaMIDI.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
