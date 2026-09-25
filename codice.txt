@@ -1,0 +1,313 @@
+#include <MIDI.h>
+
+MIDI_CREATE_DEFAULT_INSTANCE();
+
+
+unsigned int midiperiod[128];                      // Array to store midi note periods
+
+const int analogInPin_Periodendauer_min = A4;      // Analog input pin für Periodendauer_min-Potentiometer
+const int analogInPin_ontime = A5;                 // Analog input pin für On-time-Potentiometer
+
+int outputPsuB = 10;                               // Ausgabe-Pin für das PWM-Signal
+
+int Periodendauer_min;                             // minimale Periodendauer des PWM-Signals in µs
+int Periodendauer_min_Intervall_unten;             // untere Grenze für die minimal erlaubte Periodendauer
+int Periodendauer_min_Intervall_oben;              // obere Grenze für die minimal erlaubte Periodendauer
+int ontime;                                        // Variable für die On-time des PWM-Signals
+int ontime_max;                                    // maximale On-time des PWM-Signals in µs
+
+
+
+// =================================================
+// ==================   SETUP   ====================
+// =================================================
+
+void setup()
+   {
+    Serial.begin(31250);    // andere baudrate funktioniert NICHT!!
+    
+    pinMode(13, OUTPUT);
+    pinMode(outputPsuB, OUTPUT);  // select Pin_PWM as output
+    
+    
+    // Festlegen der ontime bzw. der Grenzwerte des Periodendauer-Minimums
+    // ===================================================================
+    
+    ontime_max = 150;            // maximale ontime = 150 µs
+    
+    Periodendauer_min_Intervall_oben = 2000;   // Periodendauer_min_Intervall_oben = 2.0 ms, f_max_unten = 500 Hz
+    
+    Periodendauer_min_Intervall_unten = 800;   // Periodendauer_min_Intervall_unten = 0.8 ms, f_max_oben = 1250 Hz
+    
+      
+    // ==========================
+    //     Timer festsetzen
+    // ==========================
+  
+    TCCR1A = B00100001;        // PWM, Phase and frequency correct - change at OCR1A
+    TCCR1B = B10010;           // prescaling by 8 the system clock
+  
+  
+    // Der Wert 1 enstpricht 1 µs!
+    // ===========================
+  
+    OCR1A = midiperiod[68];    // Ausgabe der eigentlich unwichtigen Start-Periodendauer des PWM-Signals
+    
+    // OCR1A = 2500;           // Start-Periodendauer tau = z.B. 2500 µs = 2.5 ms == 400 Hz
+  
+    OCR1B = 0;                 // Start-ON-Time = 0 µs, d.h. zu Beginn wird noch kein Ton gespielt!    
+    
+      
+       
+    // Connect the handleNoteOn function to the library,
+    // so it is called upon reception of a NoteOn.    
+      
+    MIDI.setHandleNoteOn(handleNoteOn);      // Put only the name of the function    
+          
+    MIDI.setHandleNoteOff(handleNoteOff);    // Do the same for NoteOffs
+    
+    MIDI.begin(MIDI_CHANNEL_OMNI);           // Initiate MIDI communications, listen to all channels 
+   
+    
+    
+    // Periodendauer der Midi-Noten
+    // ============================
+   
+    midiperiod[0] = 122312; 
+    midiperiod[1] = 115447; 
+    midiperiod[2] = 108968; 
+    midiperiod[3] = 102852; 
+    midiperiod[4] = 97079; 
+    midiperiod[5] = 91631; 
+    midiperiod[6] = 86488; 
+    midiperiod[7] = 81634; 
+    midiperiod[8] = 77052; 
+    midiperiod[9] = 72727; 
+    midiperiod[10] = 68645; 
+    midiperiod[11] = 64793; 
+    midiperiod[12] = 61156; 
+    midiperiod[13] = 57724; 
+    midiperiod[14] = 54484; 
+    midiperiod[15] = 51426; 
+    midiperiod[16] = 48540; 
+    midiperiod[17] = 45815; 
+    midiperiod[18] = 43244; 
+    midiperiod[19] = 40817; 
+    midiperiod[20] = 38526; 
+    midiperiod[21] = 36364; 
+    midiperiod[22] = 34323; 
+    midiperiod[23] = 32396;
+    midiperiod[24] = 30578; 
+    midiperiod[25] = 28862; 
+    midiperiod[26] = 27242; 
+    midiperiod[27] = 25713; 
+    midiperiod[28] = 24270; 
+    midiperiod[29] = 22908; 
+    midiperiod[30] = 21622; 
+    midiperiod[31] = 20408; 
+    midiperiod[32] = 19263; 
+    midiperiod[33] = 18182; 
+    midiperiod[34] = 17161; 
+    midiperiod[35] = 16198; 
+    midiperiod[36] = 15289; 
+    midiperiod[37] = 14431; 
+    midiperiod[38] = 13621; 
+    midiperiod[39] = 12856; 
+    midiperiod[40] = 12135; 
+    midiperiod[41] = 11454; 
+    midiperiod[42] = 10811; 
+    midiperiod[43] = 10204; 
+    midiperiod[44] = 9631; 
+    midiperiod[45] = 9091; 
+    midiperiod[46] = 8581; 
+    midiperiod[47] = 8099;
+    midiperiod[48] = 7645; 
+    midiperiod[49] = 7215; 
+    midiperiod[50] = 6810; 
+    midiperiod[51] = 6428; 
+    midiperiod[52] = 6067; 
+    midiperiod[53] = 5727; 
+    midiperiod[54] = 5405; 
+    midiperiod[55] = 5102; 
+    midiperiod[56] = 4816; 
+    midiperiod[57] = 4545; 
+    midiperiod[58] = 4290; 
+    midiperiod[59] = 4050; 
+    midiperiod[60] = 3822; 
+    midiperiod[61] = 3608; 
+    midiperiod[62] = 3405; 
+    midiperiod[63] = 3214; 
+    midiperiod[64] = 3034; 
+    midiperiod[65] = 2863; 
+    midiperiod[66] = 2703; 
+    midiperiod[67] = 2551; 
+    midiperiod[68] = 2408; 
+    midiperiod[69] = 2273; 
+    midiperiod[70] = 2145; 
+    midiperiod[71] = 2025;
+    midiperiod[72] = 1911; 
+    midiperiod[73] = 1804; 
+    midiperiod[74] = 1703; 
+    midiperiod[75] = 1607; 
+    midiperiod[76] = 1517; 
+    midiperiod[77] = 1432; 
+    midiperiod[78] = 1351; 
+    midiperiod[79] = 1276; 
+    midiperiod[80] = 1204; 
+    midiperiod[81] = 1136; 
+    midiperiod[82] = 1073; 
+    midiperiod[83] = 1012; 
+    midiperiod[84] = 956; 
+    midiperiod[85] = 902; 
+    midiperiod[86] = 851; 
+    midiperiod[87] = 804; 
+    midiperiod[88] = 758; 
+    midiperiod[89] = 716; 
+    midiperiod[90] = 676; 
+    midiperiod[91] = 638; 
+    midiperiod[92] = 602; 
+    midiperiod[93] = 568; 
+    midiperiod[94] = 536; 
+    midiperiod[95] = 506; 
+    midiperiod[96] = 478; 
+    midiperiod[97] = 451; 
+    midiperiod[98] = 426; 
+    midiperiod[99] = 402; 
+    midiperiod[100] = 379; 
+    midiperiod[101] = 358; 
+    midiperiod[102] = 338; 
+    midiperiod[103] = 319; 
+    midiperiod[104] = 301; 
+    midiperiod[105] = 284; 
+    midiperiod[106] = 268; 
+    midiperiod[107] = 253; 
+    midiperiod[108] = 239; 
+    midiperiod[109] = 225; 
+    midiperiod[110] = 213; 
+    midiperiod[111] = 201; 
+    midiperiod[112] = 190; 
+    midiperiod[113] = 179; 
+    midiperiod[114] = 169; 
+    midiperiod[115] = 159; 
+    midiperiod[116] = 150; 
+    midiperiod[117] = 142; 
+    midiperiod[118] = 134; 
+    midiperiod[119] = 127; 
+    midiperiod[120] = 119; 
+    midiperiod[121] = 113; 
+    midiperiod[122] = 106; 
+    midiperiod[123] = 100; 
+    midiperiod[124] = 95; 
+    midiperiod[125] = 89; 
+    midiperiod[126] = 84; 
+    midiperiod[127] = 80; 
+    
+   }
+
+
+// =========================================================
+// ==================   HAUPTSCHLEIFE   ====================
+// =========================================================
+
+void loop()
+   {
+    // Einlesen der mit dem Potentiometer eingestellten ontime
+    ontime = analogRead(analogInPin_ontime);
+    
+    // Übertragen der ontime ins Intervall [0,ontime_max] µs
+    ontime = map(ontime, 0, 1023, 0, ontime_max);
+
+
+    // Einlesen der mit dem Potentiometer eingestellten Periodendauer-Minimums
+    Periodendauer_min = analogRead(analogInPin_Periodendauer_min);
+    
+    // Übertragen des Periodendauer-Minimums ins Intervall [Periodendauer_min_Intervall_unten,Periodendauer_min_Intervall_oben] µs
+    Periodendauer_min = map(Periodendauer_min, 0, 1023, Periodendauer_min_Intervall_unten, Periodendauer_min_Intervall_oben);
+        
+                
+ 
+    MIDI.read();        // Call MIDI.read the fastest you can for real-time performance.
+                  
+   }    
+ 
+
+
+
+
+
+// ========================
+// MIDI-Note wird gespielt:
+// ========================
+
+void handleNoteOn(byte channel, byte pitch, byte velocity) 
+   {        
+    // Do whatever you want when a note is pressed.
+    // Try to keep your callbacks short (no delays ect)    
+    // otherwise it would slow down the loop() and have a bad impact    
+    // on real-time performance.
+    
+    
+    
+    // Ausgabe des PWM-Signals mit der Periodendauer der gespielten Note
+    // =================================================================
+    
+    
+    // Abfrage, ob die gespielte Periodendauer wohl über dem Periodendauer_Minimum liegt, um zu hohe Frequenzen zu vermeiden!
+    // ----------------------------------------------------------------------------------------------------------------------
+    
+    if (midiperiod[pitch] > Periodendauer_min)
+       {
+        OCR1A = midiperiod[pitch];    // Ausgabe der Periodendauer des PWM-Signals
+        OCR1B = ontime;               // Ausgabe der ontime des PWM-Signals  
+       }
+    
+    
+    
+    
+    
+    /*
+    if (pitch == 60)
+       { 
+        digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
+        delay(2000);              // wait for a second
+        digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW                
+       } 
+               
+               
+    if (pitch == 62)
+       { 
+        digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
+        delay(4000);              // wait for a second
+        digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW                
+       } 
+    */
+    
+    
+    /*
+    Serial.println("Note gespielt:");
+    Serial.println(channel);
+    Serial.println(pitch);
+    Serial.println(velocity);    
+    */  
+        
+   }
+
+
+
+// ===================================
+// MIDI-Note wird nicht mehr gespielt:
+// ===================================
+
+void handleNoteOff(byte channel, byte pitch, byte velocity)
+   {
+    // Do something when the note is released.    
+    // Note that NoteOn messages with 0 velocity are interpreted as NoteOffs.
+    
+    // Beenden des PWM-Signals
+    // =======================
+    
+    // OCR1A = midiperiod[pitch];
+    
+    OCR1B = 0;                    // keine Ausgabe durch ontime = 0  
+           
+   }

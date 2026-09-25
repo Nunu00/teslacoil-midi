@@ -1,0 +1,406 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9EE6979B3E27A6C5104D004A /* TeslaMIDIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FAFF4AA96D37A7368745D65 /* TeslaMIDIApp.swift */; };
+		46DB75625712064E34BC9E9D /* MIDITrackInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC1B39E2308FCA01DD4CD90 /* MIDITrackInfo.swift */; };
+		83A9AD1062CF92E35C0BA1CB /* MIDIParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB371734301F34837B50F625 /* MIDIParser.swift */; };
+		82F0108CC8ED666F8AC4E280 /* BluetoothService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */; };
+		F8DFF1382E2F1C17B3CE205D /* MIDIPlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */; };
+		2281130670330A751B91DAB3 /* SongStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */; };
+		95FD9077DC972C19F457595B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C58B582319032E80BE2E97 /* ContentView.swift */; };
+		468BEE59AC5018C528DC4317 /* SongListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAA568E0D94DA955F92E876C /* SongListView.swift */; };
+		E1F1B03AB794623E8AD6EBEB /* TrackSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F42A2FD609BA74084B78F7 /* TrackSelectorView.swift */; };
+		F8F053EF52973EA1F35668DB /* BluetoothModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7071E2380A22A3F47DCB755 /* BluetoothModalView.swift */; };
+		557BFF5FB01190550BCE6A9E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F44895E4A107F6CE8EA14E2 /* SettingsView.swift */; };
+		C71767F63CFB08579ADD5206 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43D5234F60C1355E45B15BBB /* Assets.xcassets */; };
+		ED6822C8C4E2FE4688C07FEF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D6A083F52B30BB0CE69C409 /* CoreBluetooth.framework */; };
+		6740F193CF212BC1169EB444 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF7D85D5EA21301DB24CCD90 /* AVFoundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		55FB3ACA092AA555BBCDB703 /* TeslaMIDI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TeslaMIDI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3FAFF4AA96D37A7368745D65 /* TeslaMIDIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeslaMIDIApp.swift; sourceTree = "<group>"; };
+		2DC1B39E2308FCA01DD4CD90 /* MIDITrackInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDITrackInfo.swift; sourceTree = "<group>"; };
+		CB371734301F34837B50F625 /* MIDIParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIParser.swift; sourceTree = "<group>"; };
+		6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothService.swift; sourceTree = "<group>"; };
+		0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIPlaybackEngine.swift; sourceTree = "<group>"; };
+		DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongStorageService.swift; sourceTree = "<group>"; };
+		13C58B582319032E80BE2E97 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BAA568E0D94DA955F92E876C /* SongListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongListView.swift; sourceTree = "<group>"; };
+		11F42A2FD609BA74084B78F7 /* TrackSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackSelectorView.swift; sourceTree = "<group>"; };
+		F7071E2380A22A3F47DCB755 /* BluetoothModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothModalView.swift; sourceTree = "<group>"; };
+		3F44895E4A107F6CE8EA14E2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0022522074A8F62F590870FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43D5234F60C1355E45B15BBB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2D6A083F52B30BB0CE69C409 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		BF7D85D5EA21301DB24CCD90 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		35C06362E26B4F8A23372065 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED6822C8C4E2FE4688C07FEF /* CoreBluetooth.framework in Frameworks */,
+				6740F193CF212BC1169EB444 /* AVFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		150D40992CF59B79116E6AD4 = {
+			isa = PBXGroup;
+			children = (
+				E1BB6400F96A3A24025D17F8 /* TeslaMIDI */,
+				CC7DB394F65A555653CE38E6 /* Frameworks */,
+				5908596C640D256FEFBA751D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1BB6400F96A3A24025D17F8 /* TeslaMIDI */ = {
+			isa = PBXGroup;
+			children = (
+				3FAFF4AA96D37A7368745D65 /* TeslaMIDIApp.swift */,
+				29A5DCA7FA535D5341DAF987 /* Models */,
+				C351B3C2F64018ECFEAA15E0 /* Services */,
+				73A92678F78A4FB509D3FA47 /* Views */,
+				43D5234F60C1355E45B15BBB /* Assets.xcassets */,
+				0022522074A8F62F590870FB /* Info.plist */,
+			);
+			path = TeslaMIDI;
+			sourceTree = "<group>";
+		};
+		29A5DCA7FA535D5341DAF987 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2DC1B39E2308FCA01DD4CD90 /* MIDITrackInfo.swift */,
+				CB371734301F34837B50F625 /* MIDIParser.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C351B3C2F64018ECFEAA15E0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6AFE2A844DEA556FB5E312F8 /* BluetoothService.swift */,
+				0CFB585E744464651B8FC862 /* MIDIPlaybackEngine.swift */,
+				DEEF6C6DE3351ED1BD98DCF4 /* SongStorageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		73A92678F78A4FB509D3FA47 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				13C58B582319032E80BE2E97 /* ContentView.swift */,
+				BAA568E0D94DA955F92E876C /* SongListView.swift */,
+				11F42A2FD609BA74084B78F7 /* TrackSelectorView.swift */,
+				F7071E2380A22A3F47DCB755 /* BluetoothModalView.swift */,
+				3F44895E4A107F6CE8EA14E2 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CC7DB394F65A555653CE38E6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2D6A083F52B30BB0CE69C409 /* CoreBluetooth.framework */,
+				BF7D85D5EA21301DB24CCD90 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5908596C640D256FEFBA751D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55FB3ACA092AA555BBCDB703 /* TeslaMIDI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3C0BBC16D9F478C121F41377 /* TeslaMIDI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D7EB0EA32AF67AC46B6F8AB8 /* Build configuration list for PBXNativeTarget "TeslaMIDI" */;
+			buildPhases = (
+				E2F97CD3918DAB90598568B0 /* Sources */,
+				35C06362E26B4F8A23372065 /* Frameworks */,
+				B3809EA7F1EBAB7D89D90E4F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TeslaMIDI;
+			productName = TeslaMIDI;
+			productReference = 55FB3ACA092AA555BBCDB703 /* TeslaMIDI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7316CCE32B1469756E74D272 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3C0BBC16D9F478C121F41377 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 6DEFF2A170E8BBEC26AB817B /* Build configuration list for PBXProject "TeslaMIDI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = it;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				it,
+				Base,
+			);
+			mainGroup = 150D40992CF59B79116E6AD4;
+			productRefGroup = 5908596C640D256FEFBA751D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3C0BBC16D9F478C121F41377 /* TeslaMIDI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B3809EA7F1EBAB7D89D90E4F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C71767F63CFB08579ADD5206 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E2F97CD3918DAB90598568B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9EE6979B3E27A6C5104D004A /* TeslaMIDIApp.swift in Sources */,
+				46DB75625712064E34BC9E9D /* MIDITrackInfo.swift in Sources */,
+				83A9AD1062CF92E35C0BA1CB /* MIDIParser.swift in Sources */,
+				82F0108CC8ED666F8AC4E280 /* BluetoothService.swift in Sources */,
+				F8DFF1382E2F1C17B3CE205D /* MIDIPlaybackEngine.swift in Sources */,
+				2281130670330A751B91DAB3 /* SongStorageService.swift in Sources */,
+				95FD9077DC972C19F457595B /* ContentView.swift in Sources */,
+				468BEE59AC5018C528DC4317 /* SongListView.swift in Sources */,
+				E1F1B03AB794623E8AD6EBEB /* TrackSelectorView.swift in Sources */,
+				F8F053EF52973EA1F35668DB /* BluetoothModalView.swift in Sources */,
+				557BFF5FB01190550BCE6A9E /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E1CEAC0CCE12F372DFD1AA54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDEFINED_VARIABLES = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		0276EA78AE2E29A049C6A599 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDEFINED_VARIABLES = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7E94D75C5D146DE5F31A6EF8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TeslaMIDI/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.teslacoil.teslamidi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A260AFB7E548DA3DD7606435 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TeslaMIDI/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.teslacoil.teslamidi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6DEFF2A170E8BBEC26AB817B /* Build configuration list for PBXProject "TeslaMIDI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1CEAC0CCE12F372DFD1AA54 /* Debug */,
+				0276EA78AE2E29A049C6A599 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D7EB0EA32AF67AC46B6F8AB8 /* Build configuration list for PBXNativeTarget "TeslaMIDI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7E94D75C5D146DE5F31A6EF8 /* Debug */,
+				A260AFB7E548DA3DD7606435 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 7316CCE32B1469756E74D272 /* Project object */;
+}
