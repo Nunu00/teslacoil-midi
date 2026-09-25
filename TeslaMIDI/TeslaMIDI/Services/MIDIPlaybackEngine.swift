@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import QuartzCore
 
 public class MIDIPlaybackEngine: ObservableObject {
     public static let shared = MIDIPlaybackEngine()
