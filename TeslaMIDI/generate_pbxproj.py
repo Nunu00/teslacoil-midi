@@ -1,14 +1,31 @@
-import uuid
+import os
+import hashlib
 
-def gen_id():
-    return uuid.uuid4().hex[:24].upper()
-
-# Fixed deterministic IDs for clean diffs
 def det_id(name):
     # Generates a consistent 24-character hex string based on name
-    import hashlib
-    h = hashlib.sha1(name.encode('utf-8')).hexdigest()[:24].upper()
-    return h
+    return hashlib.sha1(name.encode('utf-8')).hexdigest()[:24].upper()
+
+bundled_dir = "TeslaMIDI/TeslaMIDI/BundledMIDIs"
+midi_files = sorted([f for f in os.listdir(bundled_dir) if f.endswith('.mid')])
+print(f"Found {len(midi_files)} bundled MIDI files to embed into project.")
+
+# Generate PBXBuildFile entries for MIDIs
+midi_bf_lines = []
+for f in midi_files:
+    midi_bf_lines.append(f'\t\t{det_id("BF_MIDI_" + f)} /* {f} in Resources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_MIDI_" + f)} /* {f} */; }};')
+midi_bf_str = "\n".join(midi_bf_lines)
+
+# Generate PBXFileReference entries for MIDIs
+midi_fr_lines = []
+for f in midi_files:
+    midi_fr_lines.append(f'\t\t{det_id("FR_MIDI_" + f)} /* {f} */ = {{isa = PBXFileReference; lastKnownFileType = audio.midi; path = "{f}"; sourceTree = "<group>"; }};')
+midi_fr_str = "\n".join(midi_fr_lines)
+
+# Generate Group children for BundledMIDIs
+midi_grp_children = "\n".join([f'\t\t\t\t{det_id("FR_MIDI_" + f)} /* {f} */,' for f in midi_files])
+
+# Generate Resources phase entries
+midi_res_entries = "\n".join([f'\t\t\t\t{det_id("BF_MIDI_" + f)} /* {f} in Resources */,' for f in midi_files])
 
 pbx = f"""// !$*UTF8*$!
 {{
@@ -34,6 +51,7 @@ pbx = f"""// !$*UTF8*$!
 		{det_id("BF_Assets") } /* Assets.xcassets in Resources */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_Assets")} /* Assets.xcassets */; }};
 		{det_id("BF_CB_FW") } /* CoreBluetooth.framework in Frameworks */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_CB_FW")} /* CoreBluetooth.framework */; }};
 		{det_id("BF_AV_FW") } /* AVFoundation.framework in Frameworks */ = {{isa = PBXBuildFile; fileRef = {det_id("FR_AV_FW")} /* AVFoundation.framework */; }};
+{midi_bf_str}
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +72,7 @@ pbx = f"""// !$*UTF8*$!
 		{det_id("FR_Assets") } /* Assets.xcassets */ = {{isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; }};
 		{det_id("FR_CB_FW") } /* CoreBluetooth.framework */ = {{isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; }};
 		{det_id("FR_AV_FW") } /* AVFoundation.framework */ = {{isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; }};
+{midi_fr_str}
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +104,7 @@ pbx = f"""// !$*UTF8*$!
 				{det_id("GRP_Models") } /* Models */,
 				{det_id("GRP_Services") } /* Services */,
 				{det_id("GRP_Views") } /* Views */,
+				{det_id("GRP_BundledMIDIs") } /* BundledMIDIs */,
 				{det_id("FR_Assets") } /* Assets.xcassets */,
 				{det_id("FR_InfoPlist") } /* Info.plist */,
 			);
@@ -121,6 +141,14 @@ pbx = f"""// !$*UTF8*$!
 				{det_id("FR_Settings") } /* SettingsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		}};
+		{det_id("GRP_BundledMIDIs") } /* BundledMIDIs */ = {{
+			isa = PBXGroup;
+			children = (
+{midi_grp_children}
+			);
+			path = BundledMIDIs;
 			sourceTree = "<group>";
 		}};
 		{det_id("GRP_Frameworks") } /* Frameworks */ = {{
@@ -198,6 +226,7 @@ pbx = f"""// !$*UTF8*$!
 			buildActionMask = 2147483647;
 			files = (
 				{det_id("BF_Assets") } /* Assets.xcassets in Resources */,
+{midi_res_entries}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};
@@ -422,6 +451,6 @@ pbx = f"""// !$*UTF8*$!
 }}
 """
 
-with open("c:/Antigravity/teslacoil/TeslaMIDI/TeslaMIDI.xcodeproj/project.pbxproj", "w", encoding="utf-8") as f:
+with open("TeslaMIDI/TeslaMIDI.xcodeproj/project.pbxproj", "w", encoding="utf-8") as f:
     f.write(pbx)
-print("Generated project.pbxproj successfully!")
+print("Updated project.pbxproj with all bundled MIDIs successfully!")

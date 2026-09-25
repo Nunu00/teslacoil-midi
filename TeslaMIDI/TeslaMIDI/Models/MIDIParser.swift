@@ -259,7 +259,46 @@ public class MIDIParser {
         
         let duration = convertedEvents.last?.timeSeconds ?? 0.0
         let baseFileName = fileURL.deletingPathExtension().lastPathComponent
-        let finalTitle = (extractedTitle != nil && !extractedTitle!.isEmpty) ? extractedTitle! : baseFileName
+        
+        let friendlyTitles: [String: String] = [
+            "ACDC": "AC/DC - Thunderstruck",
+            "Avast": "Avast Theme",
+            "Axel": "Axel F (Beverly Hills Cop)",
+            "Bamba": "La Bamba",
+            "CoB": "Children of Bodom",
+            "CoffinD": "Coffin Dance (Astronomia)",
+            "EpicS": "Epic Sax Guy",
+            "Ezio": "Assassin's Creed (Ezio's Family)",
+            "furE": "Für Elise (Beethoven)",
+            "Fur_Elise": "Für Elise (Beethoven)",
+            "GhostB": "Ghostbusters Theme",
+            "HarryP": "Harry Potter (Hedwig's Theme)",
+            "Insomnia": "Faithless - Insomnia",
+            "Inter": "Interstellar Theme",
+            "LPolkka": "Ievan Polkka",
+            "pig_T": "Pigstep (Minecraft)",
+            "PoC": "Pirates of the Caribbean",
+            "RoL": "Rick Roll (Never Gonna Give You Up)",
+            "RoL_B": "Rick Roll (Bass Track)",
+            "RoL_P": "Rick Roll (Piano Track)",
+            "rushE": "Rush E",
+            "SMB": "Super Mario Bros Theme",
+            "Mario_Theme": "Super Mario Bros Theme",
+            "SSS": "Sonic Theme",
+            "Tarant": "Tarantella Napoletana",
+            "Tetris": "Tetris (Korobeiniki)",
+            "tlou": "The Last of Us Theme",
+            "Bach_Toccata": "Bach - Toccata e Fuga in Re Minore"
+        ]
+        
+        let finalTitle: String
+        if let friendly = friendlyTitles[baseFileName] {
+            finalTitle = friendly
+        } else if let ext = extractedTitle, !ext.isEmpty, !isGenericTrackName(ext) {
+            finalTitle = ext
+        } else {
+            finalTitle = baseFileName
+        }
         
         let initialTempoBPM = 60_000_000.0 / Double(tempoChanges.first?.microsecondsPerQuarterNote ?? 500_000)
         
@@ -273,6 +312,16 @@ public class MIDIParser {
             totalNotes: totalNotes,
             tempoBPM: initialTempoBPM
         )
+    }
+    
+    private static func isGenericTrackName(_ name: String) -> Bool {
+        let lower = name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let genericWords = ["piano", "melody", "track", "unbenannt", "midi out", "acoustic", "electric"]
+        if lower.count <= 2 { return true }
+        for g in genericWords {
+            if lower.contains(g) && lower.count <= 15 { return true }
+        }
+        return false
     }
     
     // MARK: - Binary Helpers

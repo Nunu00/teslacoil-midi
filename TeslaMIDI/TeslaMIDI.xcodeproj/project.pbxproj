@@ -22,6 +22,34 @@
 		C71767F63CFB08579ADD5206 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43D5234F60C1355E45B15BBB /* Assets.xcassets */; };
 		ED6822C8C4E2FE4688C07FEF /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D6A083F52B30BB0CE69C409 /* CoreBluetooth.framework */; };
 		6740F193CF212BC1169EB444 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF7D85D5EA21301DB24CCD90 /* AVFoundation.framework */; };
+		6BBDE3AD3B53A3C59D67D9D6 /* ACDC.mid in Resources */ = {isa = PBXBuildFile; fileRef = 9FBFE5B66A37FAF5DB840FEF /* ACDC.mid */; };
+		21BAE8CB5D7840A7D85BFB44 /* Avast.mid in Resources */ = {isa = PBXBuildFile; fileRef = 30EE30E2C6ECC9120D4FD3E9 /* Avast.mid */; };
+		CA769528EA35F144FD514FD9 /* Axel.mid in Resources */ = {isa = PBXBuildFile; fileRef = 7B214B7A9E10E3A8CE22253F /* Axel.mid */; };
+		90E1A76D4E98647BCE39BA1A /* Bach_Toccata.mid in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8EFEDAE00A99106F224C2 /* Bach_Toccata.mid */; };
+		01A9091895CE50F59143FD35 /* Bamba.mid in Resources */ = {isa = PBXBuildFile; fileRef = 58AA84AFF57E867BCEE57F5E /* Bamba.mid */; };
+		D8DB8EAA7561A009E36F0DA1 /* CoB.mid in Resources */ = {isa = PBXBuildFile; fileRef = 060A44FA7EAA6527D4CCFB5D /* CoB.mid */; };
+		F4FE7B5FA5636AD26CC8F38A /* CoffinD.mid in Resources */ = {isa = PBXBuildFile; fileRef = F4CAF14AFF166C2CAB04DD49 /* CoffinD.mid */; };
+		4194D0374C30D1D561EC4310 /* EpicS.mid in Resources */ = {isa = PBXBuildFile; fileRef = 89DE49BC572086AC918FB124 /* EpicS.mid */; };
+		0CB7B3706BCA9A1BA22B39A8 /* Ezio.mid in Resources */ = {isa = PBXBuildFile; fileRef = A4B022B8237B81FFCB13B6CD /* Ezio.mid */; };
+		F83C7AFA526816D884DC55C4 /* Fur_Elise.mid in Resources */ = {isa = PBXBuildFile; fileRef = A76729DE0882EB24F581EE3C /* Fur_Elise.mid */; };
+		881B25C687E0D0CCF146675E /* GhostB.mid in Resources */ = {isa = PBXBuildFile; fileRef = D88A86F59D241565BF52F5D6 /* GhostB.mid */; };
+		89ECD34E27C602BB5D446A57 /* HarryP.mid in Resources */ = {isa = PBXBuildFile; fileRef = A1DAAD83CB1327EE2348FC75 /* HarryP.mid */; };
+		3BEE4077A314021F77404C16 /* Insomnia.mid in Resources */ = {isa = PBXBuildFile; fileRef = A561C5530A2E1EE46B1C3735 /* Insomnia.mid */; };
+		F36A31836C89FF18F1743091 /* Inter.mid in Resources */ = {isa = PBXBuildFile; fileRef = 3D54D5FB1199CDFA212F10FE /* Inter.mid */; };
+		68A793485C5BA58CF0D902D0 /* LPolkka.mid in Resources */ = {isa = PBXBuildFile; fileRef = CC7521675403AE5DF58F5BAD /* LPolkka.mid */; };
+		DA157F8D5843202333A48789 /* Mario_Theme.mid in Resources */ = {isa = PBXBuildFile; fileRef = 9B87F78CF1BB89D90D0F099B /* Mario_Theme.mid */; };
+		86F47A351C56360282240128 /* PoC.mid in Resources */ = {isa = PBXBuildFile; fileRef = 4D0C16D030AE90F8EA48D309 /* PoC.mid */; };
+		E2255F0F53E1A691888671CE /* RoL.mid in Resources */ = {isa = PBXBuildFile; fileRef = B13FB234D7361E61BBB25968 /* RoL.mid */; };
+		6651B26877F3A4B308AB306C /* RoL_B.mid in Resources */ = {isa = PBXBuildFile; fileRef = F065539936927413CF41DE70 /* RoL_B.mid */; };
+		56F966FEF82E4CC911F85BBB /* RoL_P.mid in Resources */ = {isa = PBXBuildFile; fileRef = 540C13D8FAC4CFD19EDE3FE4 /* RoL_P.mid */; };
+		D39D08CCD480929F377861F4 /* SMB.mid in Resources */ = {isa = PBXBuildFile; fileRef = A76B53D0637B66C75442CCE0 /* SMB.mid */; };
+		87B6B89ABB370FAF18FEC17E /* SSS.mid in Resources */ = {isa = PBXBuildFile; fileRef = B9C277EAE6299507BC217915 /* SSS.mid */; };
+		0E0BE0069DAEDACAA5579B6F /* Tarant.mid in Resources */ = {isa = PBXBuildFile; fileRef = B4913DAE71F15573E3524BB1 /* Tarant.mid */; };
+		3B00ECB0A08EFA5C5D765D4C /* Tetris.mid in Resources */ = {isa = PBXBuildFile; fileRef = 1AB41EB21F3D4C81C75433BF /* Tetris.mid */; };
+		330C10A13A914D02EC4339F2 /* furE.mid in Resources */ = {isa = PBXBuildFile; fileRef = D544BD7715278A25548364C5 /* furE.mid */; };
+		C148E1F7230E4304652BD236 /* pig_T.mid in Resources */ = {isa = PBXBuildFile; fileRef = 41C55D4EF9D02F4E4D920F32 /* pig_T.mid */; };
+		ACCDDA9A4117D0E9E7130776 /* rushE.mid in Resources */ = {isa = PBXBuildFile; fileRef = D3B530DA9B081C0E090C8A53 /* rushE.mid */; };
+		B9095EEB877CCBFD721092BE /* tlou.mid in Resources */ = {isa = PBXBuildFile; fileRef = 6690B1C0B108C7B141DC895B /* tlou.mid */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +70,34 @@
 		43D5234F60C1355E45B15BBB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2D6A083F52B30BB0CE69C409 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		BF7D85D5EA21301DB24CCD90 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		9FBFE5B66A37FAF5DB840FEF /* ACDC.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "ACDC.mid"; sourceTree = "<group>"; };
+		30EE30E2C6ECC9120D4FD3E9 /* Avast.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Avast.mid"; sourceTree = "<group>"; };
+		7B214B7A9E10E3A8CE22253F /* Axel.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Axel.mid"; sourceTree = "<group>"; };
+		4AD8EFEDAE00A99106F224C2 /* Bach_Toccata.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Bach_Toccata.mid"; sourceTree = "<group>"; };
+		58AA84AFF57E867BCEE57F5E /* Bamba.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Bamba.mid"; sourceTree = "<group>"; };
+		060A44FA7EAA6527D4CCFB5D /* CoB.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "CoB.mid"; sourceTree = "<group>"; };
+		F4CAF14AFF166C2CAB04DD49 /* CoffinD.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "CoffinD.mid"; sourceTree = "<group>"; };
+		89DE49BC572086AC918FB124 /* EpicS.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "EpicS.mid"; sourceTree = "<group>"; };
+		A4B022B8237B81FFCB13B6CD /* Ezio.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Ezio.mid"; sourceTree = "<group>"; };
+		A76729DE0882EB24F581EE3C /* Fur_Elise.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Fur_Elise.mid"; sourceTree = "<group>"; };
+		D88A86F59D241565BF52F5D6 /* GhostB.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "GhostB.mid"; sourceTree = "<group>"; };
+		A1DAAD83CB1327EE2348FC75 /* HarryP.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "HarryP.mid"; sourceTree = "<group>"; };
+		A561C5530A2E1EE46B1C3735 /* Insomnia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Insomnia.mid"; sourceTree = "<group>"; };
+		3D54D5FB1199CDFA212F10FE /* Inter.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Inter.mid"; sourceTree = "<group>"; };
+		CC7521675403AE5DF58F5BAD /* LPolkka.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "LPolkka.mid"; sourceTree = "<group>"; };
+		9B87F78CF1BB89D90D0F099B /* Mario_Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Mario_Theme.mid"; sourceTree = "<group>"; };
+		4D0C16D030AE90F8EA48D309 /* PoC.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "PoC.mid"; sourceTree = "<group>"; };
+		B13FB234D7361E61BBB25968 /* RoL.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "RoL.mid"; sourceTree = "<group>"; };
+		F065539936927413CF41DE70 /* RoL_B.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "RoL_B.mid"; sourceTree = "<group>"; };
+		540C13D8FAC4CFD19EDE3FE4 /* RoL_P.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "RoL_P.mid"; sourceTree = "<group>"; };
+		A76B53D0637B66C75442CCE0 /* SMB.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "SMB.mid"; sourceTree = "<group>"; };
+		B9C277EAE6299507BC217915 /* SSS.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "SSS.mid"; sourceTree = "<group>"; };
+		B4913DAE71F15573E3524BB1 /* Tarant.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Tarant.mid"; sourceTree = "<group>"; };
+		1AB41EB21F3D4C81C75433BF /* Tetris.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Tetris.mid"; sourceTree = "<group>"; };
+		D544BD7715278A25548364C5 /* furE.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "furE.mid"; sourceTree = "<group>"; };
+		41C55D4EF9D02F4E4D920F32 /* pig_T.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "pig_T.mid"; sourceTree = "<group>"; };
+		D3B530DA9B081C0E090C8A53 /* rushE.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "rushE.mid"; sourceTree = "<group>"; };
+		6690B1C0B108C7B141DC895B /* tlou.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "tlou.mid"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +129,7 @@
 				29A5DCA7FA535D5341DAF987 /* Models */,
 				C351B3C2F64018ECFEAA15E0 /* Services */,
 				73A92678F78A4FB509D3FA47 /* Views */,
+				7102F67AD703CBEFF0508175 /* BundledMIDIs */,
 				43D5234F60C1355E45B15BBB /* Assets.xcassets */,
 				0022522074A8F62F590870FB /* Info.plist */,
 			);
@@ -109,6 +166,41 @@
 				3F44895E4A107F6CE8EA14E2 /* SettingsView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		7102F67AD703CBEFF0508175 /* BundledMIDIs */ = {
+			isa = PBXGroup;
+			children = (
+				9FBFE5B66A37FAF5DB840FEF /* ACDC.mid */,
+				30EE30E2C6ECC9120D4FD3E9 /* Avast.mid */,
+				7B214B7A9E10E3A8CE22253F /* Axel.mid */,
+				4AD8EFEDAE00A99106F224C2 /* Bach_Toccata.mid */,
+				58AA84AFF57E867BCEE57F5E /* Bamba.mid */,
+				060A44FA7EAA6527D4CCFB5D /* CoB.mid */,
+				F4CAF14AFF166C2CAB04DD49 /* CoffinD.mid */,
+				89DE49BC572086AC918FB124 /* EpicS.mid */,
+				A4B022B8237B81FFCB13B6CD /* Ezio.mid */,
+				A76729DE0882EB24F581EE3C /* Fur_Elise.mid */,
+				D88A86F59D241565BF52F5D6 /* GhostB.mid */,
+				A1DAAD83CB1327EE2348FC75 /* HarryP.mid */,
+				A561C5530A2E1EE46B1C3735 /* Insomnia.mid */,
+				3D54D5FB1199CDFA212F10FE /* Inter.mid */,
+				CC7521675403AE5DF58F5BAD /* LPolkka.mid */,
+				9B87F78CF1BB89D90D0F099B /* Mario_Theme.mid */,
+				4D0C16D030AE90F8EA48D309 /* PoC.mid */,
+				B13FB234D7361E61BBB25968 /* RoL.mid */,
+				F065539936927413CF41DE70 /* RoL_B.mid */,
+				540C13D8FAC4CFD19EDE3FE4 /* RoL_P.mid */,
+				A76B53D0637B66C75442CCE0 /* SMB.mid */,
+				B9C277EAE6299507BC217915 /* SSS.mid */,
+				B4913DAE71F15573E3524BB1 /* Tarant.mid */,
+				1AB41EB21F3D4C81C75433BF /* Tetris.mid */,
+				D544BD7715278A25548364C5 /* furE.mid */,
+				41C55D4EF9D02F4E4D920F32 /* pig_T.mid */,
+				D3B530DA9B081C0E090C8A53 /* rushE.mid */,
+				6690B1C0B108C7B141DC895B /* tlou.mid */,
+			);
+			path = BundledMIDIs;
 			sourceTree = "<group>";
 		};
 		CC7DB394F65A555653CE38E6 /* Frameworks */ = {
@@ -186,6 +278,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				C71767F63CFB08579ADD5206 /* Assets.xcassets in Resources */,
+				6BBDE3AD3B53A3C59D67D9D6 /* ACDC.mid in Resources */,
+				21BAE8CB5D7840A7D85BFB44 /* Avast.mid in Resources */,
+				CA769528EA35F144FD514FD9 /* Axel.mid in Resources */,
+				90E1A76D4E98647BCE39BA1A /* Bach_Toccata.mid in Resources */,
+				01A9091895CE50F59143FD35 /* Bamba.mid in Resources */,
+				D8DB8EAA7561A009E36F0DA1 /* CoB.mid in Resources */,
+				F4FE7B5FA5636AD26CC8F38A /* CoffinD.mid in Resources */,
+				4194D0374C30D1D561EC4310 /* EpicS.mid in Resources */,
+				0CB7B3706BCA9A1BA22B39A8 /* Ezio.mid in Resources */,
+				F83C7AFA526816D884DC55C4 /* Fur_Elise.mid in Resources */,
+				881B25C687E0D0CCF146675E /* GhostB.mid in Resources */,
+				89ECD34E27C602BB5D446A57 /* HarryP.mid in Resources */,
+				3BEE4077A314021F77404C16 /* Insomnia.mid in Resources */,
+				F36A31836C89FF18F1743091 /* Inter.mid in Resources */,
+				68A793485C5BA58CF0D902D0 /* LPolkka.mid in Resources */,
+				DA157F8D5843202333A48789 /* Mario_Theme.mid in Resources */,
+				86F47A351C56360282240128 /* PoC.mid in Resources */,
+				E2255F0F53E1A691888671CE /* RoL.mid in Resources */,
+				6651B26877F3A4B308AB306C /* RoL_B.mid in Resources */,
+				56F966FEF82E4CC911F85BBB /* RoL_P.mid in Resources */,
+				D39D08CCD480929F377861F4 /* SMB.mid in Resources */,
+				87B6B89ABB370FAF18FEC17E /* SSS.mid in Resources */,
+				0E0BE0069DAEDACAA5579B6F /* Tarant.mid in Resources */,
+				3B00ECB0A08EFA5C5D765D4C /* Tetris.mid in Resources */,
+				330C10A13A914D02EC4339F2 /* furE.mid in Resources */,
+				C148E1F7230E4304652BD236 /* pig_T.mid in Resources */,
+				ACCDDA9A4117D0E9E7130776 /* rushE.mid in Resources */,
+				B9095EEB877CCBFD721092BE /* tlou.mid in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

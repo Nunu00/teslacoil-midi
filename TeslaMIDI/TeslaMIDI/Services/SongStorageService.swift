@@ -106,6 +106,37 @@ public class SongStorageService: ObservableObject {
     // MARK: - Brani Dimostrativi Integrati
     
     private func ensureDefaultSongsExist() {
+        var bundledURLs: [URL] = []
+        
+        // 1. Cerca nella root del bundle
+        if let rootFiles = Bundle.main.urls(forResourcesWithExtension: "mid", subdirectory: nil) {
+            bundledURLs.append(contentsOf: rootFiles)
+        }
+        
+        // 2. Cerca nella cartella BundledMIDIs del bundle
+        if let subFiles = Bundle.main.urls(forResourcesWithExtension: "mid", subdirectory: "BundledMIDIs") {
+            bundledURLs.append(contentsOf: subFiles)
+        }
+        
+        // 3. Cerca fisicamente nella cartella dell'app se presente
+        if let resURL = Bundle.main.resourceURL {
+            let bundledFolder = resURL.appendingPathComponent("BundledMIDIs")
+            if let files = try? FileManager.default.contentsOfDirectory(at: bundledFolder, includingPropertiesForKeys: nil) {
+                for f in files where f.pathExtension.lowercased() == "mid" {
+                    bundledURLs.append(f)
+                }
+            }
+        }
+        
+        // Copia tutti i brani inclusi nella cartella documenti della sandbox
+        for src in bundledURLs {
+            let dest = libraryDirectory.appendingPathComponent(src.lastPathComponent)
+            if !FileManager.default.fileExists(atPath: dest.path) {
+                try? FileManager.default.copyItem(at: src, to: dest)
+            }
+        }
+        
+        // Fallback garantito
         let bachDest = libraryDirectory.appendingPathComponent("Bach_Toccata.mid")
         let marioDest = libraryDirectory.appendingPathComponent("Mario_Theme.mid")
         let eliseDest = libraryDirectory.appendingPathComponent("Fur_Elise.mid")
