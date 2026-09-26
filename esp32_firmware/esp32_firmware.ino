@@ -96,6 +96,11 @@ const unsigned int midiperiod[128] = {
        119,    113,    106,    100,     95,     89,     84,     80
 };
 
+// Nomi delle note musicali per il monitor seriale
+const char* const NOTE_NAMES[12] = {
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+};
+
 // ==============================================================================
 // VARIABILI GLOBALI
 // ==============================================================================
@@ -179,6 +184,15 @@ void stopPwmOutput() {
 #else
     ledcWrite(LEDC_CHANNEL, 0);
 #endif
+    if (current_playing_pitch >= 0) {
+        int octave = (current_playing_pitch / 12) - 1;
+        const char* note_str = NOTE_NAMES[current_playing_pitch % 12];
+        Serial.print(F("⏹ [NOTA OFF] "));
+        Serial.print(note_str);
+        if (strlen(note_str) == 1) Serial.print(F(" "));
+        Serial.print(octave);
+        Serial.println(F(" -> Interrupter Silenziato (0 Hz)"));
+    }
     current_playing_pitch = -1;
     setStatusLed(device_connected);
 }
@@ -194,7 +208,11 @@ void applyPitch(uint8_t pitch) {
 
     // Controllo di sicurezza: periodo minimo (frequenza massima)
     if (period_us < (unsigned int)current_period_min_us) {
-        // Frequenza troppo alta per la bobina: silenzia per sicurezza
+        Serial.print(F("⚠️ [SICUREZZA] Frequenza bloccata ("));
+        Serial.print(1000000UL / period_us);
+        Serial.print(F(" Hz > Max "));
+        Serial.print(1000000UL / current_period_min_us);
+        Serial.println(F(" Hz)"));
         stopPwmOutput();
         return;
     }
@@ -216,12 +234,38 @@ void applyPitch(uint8_t pitch) {
 
     if (duty_val < 1) duty_val = 1;
 
+    float duty_percent = ((float)safe_ontime / (float)period_us) * 100.0f;
+    if (duty_percent > (MAX_DUTY_CYCLE_PERCENT * 100.0f)) {
+        duty_percent = MAX_DUTY_CYCLE_PERCENT * 100.0f;
+    }
+
     setPwmOutput(freq_hz, duty_val);
     current_playing_pitch = pitch;
     note_start_time = millis();
 
     // Accendi LED durante la riproduzione
     setStatusLed(true);
+
+    // Stampa nota sul Monitor Seriale in tempo reale
+    int octave = (pitch / 12) - 1;
+    const char* note_str = NOTE_NAMES[pitch % 12];
+    Serial.print(F("♫ [NOTA ON]  "));
+    Serial.print(note_str);
+    if (strlen(note_str) == 1) Serial.print(F(" "));
+    Serial.print(octave);
+    Serial.print(F(" (MIDI "));
+    if (pitch < 100) Serial.print(F(" "));
+    if (pitch < 10)  Serial.print(F(" "));
+    Serial.print(pitch);
+    Serial.print(F(") -> "));
+    if (freq_hz < 1000) Serial.print(F(" "));
+    if (freq_hz < 100)  Serial.print(F(" "));
+    Serial.print(freq_hz);
+    Serial.print(F(" Hz | On-Time: "));
+    Serial.print(safe_ontime);
+    Serial.print(F(" us | Duty: "));
+    Serial.print(duty_percent, 1);
+    Serial.println(F("%"));
 }
 
 void handleNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {
@@ -288,6 +332,7 @@ void allNotesOff() {
 void handleControlChange(uint8_t channel, uint8_t cc_number, uint8_t cc_value) {
     // CC 120 (All Sound Off) o CC 123 (All Notes Off) -> Arresto di emergenza
     if (cc_number == 120 || cc_number == 123) {
+        Serial.println(F("🛑 [KILL SWITCH] Ricevuto comando All Notes Off dall'iPhone!"));
         allNotesOff();
         return;
     }
@@ -296,6 +341,9 @@ void handleControlChange(uint8_t channel, uint8_t cc_number, uint8_t cc_value) {
     // cc_value (0-127) mappato tra ONTIME_MIN_US e ONTIME_ABSOLUTE_MAX_US
     if (cc_number == 14) {
         current_ontime_us = map(cc_value, 0, 127, ONTIME_MIN_US, ONTIME_ABSOLUTE_MAX_US);
+        Serial.print(F("⚡ [CONFIG] Nuovo On-Time impostato dall'App: "));
+        Serial.print(current_ontime_us);
+        Serial.println(F(" us"));
         if (current_playing_pitch >= 0) {
             applyPitch(current_playing_pitch);
         }
@@ -305,6 +353,11 @@ void handleControlChange(uint8_t channel, uint8_t cc_number, uint8_t cc_value) {
     // CC 15: Controllo remoto Periodo Minimo (Frequenza Max) dall'app iPhone
     if (cc_number == 15) {
         current_period_min_us = map(cc_value, 0, 127, PERIOD_MIN_ABSOLUTE_US, PERIOD_MIN_MAX_US);
+        Serial.print(F("⚙️ [CONFIG] Nuova Frequenza Massima: "));
+        Serial.print(1000000UL / current_period_min_us);
+        Serial.print(F(" Hz (Periodo min: "));
+        Serial.print(current_period_min_us);
+        Serial.println(F(" us)"));
         if (current_playing_pitch >= 0) {
             applyPitch(current_playing_pitch);
         }
