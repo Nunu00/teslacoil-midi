@@ -380,10 +380,19 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
 class MyCharacteristicCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
+#if defined(ESP_ARDUINO_VERSION_MAJOR) && (ESP_ARDUINO_VERSION_MAJOR >= 3)
+        // ESP32 Arduino Core 3.x (getValue restituisce Arduino String)
+        String rxValue = pCharacteristic->getValue();
+        if (rxValue.length() > 0) {
+            parseBleMidiPacket((const uint8_t*)rxValue.c_str(), rxValue.length());
+        }
+#else
+        // ESP32 Arduino Core 2.x (getValue restituisce std::string)
         std::string rxValue = pCharacteristic->getValue();
         if (rxValue.length() > 0) {
             parseBleMidiPacket((const uint8_t*)rxValue.data(), rxValue.length());
         }
+#endif
     }
 };
 
