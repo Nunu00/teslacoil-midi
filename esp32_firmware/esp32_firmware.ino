@@ -32,10 +32,10 @@
   // --- CONFIGURAZIONE PER ESP32-C3 (es. SuperMini, DevKitM-1, XIAO C3) ---
   // NOTA CRUCIALE: Su ESP32-C3 i pin 18 e 19 sono la porta USB nativa (D- e D+).
   // Non devono mai essere usati come GPIO, altrimenti bloccano la porta USB e il Monitor Seriale!
-  #define PIN_PWM_OUTPUT           4    // GPIO 4: Uscita PWM per interrupter bobina
+  #define PIN_PWM_OUTPUT           0    // GPIO 0: Uscita PWM per interrupter bobina (modalità test)
   #define PIN_STATUS_LED           8    // GPIO 8: LED onboard comune (es. SuperMini C3)
-  #define PIN_POT_ONTIME           0    // GPIO 0: ADC1_CH0 (se potenziometri abilitati)
-  #define PIN_POT_PERIOD_MIN       1    // GPIO 1: ADC1_CH1 (se potenziometri abilitati)
+  #define PIN_POT_ONTIME           1    // GPIO 1: ADC1_CH1 (se potenziometri abilitati)
+  #define PIN_POT_PERIOD_MIN       2    // GPIO 2: ADC1_CH2 (se potenziometri abilitati)
   #define IS_ESP32_C3           true
 #else
   // --- CONFIGURAZIONE PER ESP32 STANDARD (WROOM, DevKit V1) ---
@@ -493,11 +493,15 @@ void setup() {
     Serial.println(F("=================================================="));
     Serial.println(F("   Tesla Coil BLE MIDI Interrupter                "));
 #if IS_ESP32_C3
-    Serial.println(F("   [Target: ESP32-C3] -> Interrupter Out: GPIO 4 "));
-    Serial.println(F("   [Target: ESP32-C3] -> Status LED:      GPIO 8 "));
+    Serial.print(F("   [Target: ESP32-C3] -> Interrupter Out: GPIO "));
+    Serial.println(PIN_PWM_OUTPUT);
+    Serial.print(F("   [Target: ESP32-C3] -> Status LED:      GPIO "));
+    Serial.println(PIN_STATUS_LED);
 #else
-    Serial.println(F("   [Target: ESP32 Standard] -> Interrupter: GPIO 18"));
-    Serial.println(F("   [Target: ESP32 Standard] -> Status LED:  GPIO 2 "));
+    Serial.print(F("   [Target: ESP32 Standard] -> Interrupter: GPIO "));
+    Serial.println(PIN_PWM_OUTPUT);
+    Serial.print(F("   [Target: ESP32 Standard] -> Status LED:  GPIO "));
+    Serial.println(PIN_STATUS_LED);
 #endif
     Serial.println(F("=================================================="));
 
