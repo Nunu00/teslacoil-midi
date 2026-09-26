@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 
 public struct SongListView: View {
@@ -7,7 +8,6 @@ public struct SongListView: View {
     @ObservedObject var audioSynth = AudioToneSynthesizer.shared
     @Environment(\.dismiss) var dismiss
     
-    @State private var isShowingFilePicker = false
     @State private var searchText = ""
     @State private var importErrorMessage: String? = nil
     
@@ -26,7 +26,19 @@ public struct SongListView: View {
                 VStack(spacing: 0) {
                     // Pulsante Importa da File iOS
                     Button(action: {
-                        isShowingFilePicker = true
+                        importErrorMessage = nil
+                        DocumentPickerManager.shared.presentPicker { urls in
+                            guard let url = urls.first else { return }
+                            do {
+                                let song = try storage.importSong(from: url)
+                                engine.load(song: song)
+                                engine.play()
+                                dismiss()
+                            } catch {
+                                print("[SongListView] Errore importazione: \(error)")
+                                importErrorMessage = "Errore: \(error.localizedDescription)"
+                            }
+                        }
                     }) {
                         HStack {
                             Image(systemName: "plus.circle.fill")
@@ -192,40 +204,15 @@ public struct SongListView: View {
                     .foregroundColor(.cyan)
                 }
             }
-            .fileImporter(
-                isPresented: $isShowingFilePicker,
-                allowedContentTypes: [
-                    .item,
-                    .data,
-                    .audio,
-                    .content,
-                    UTType("public.midi") ?? .item,
-                    UTType("public.midi-audio") ?? .item
-                ],
-                allowsMultipleSelection: true
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    var lastImported: MIDISong? = nil
-                    for url in urls {
-                        do {
-                            let imported = try storage.importSong(from: url)
-                            lastImported = imported
-                        } catch {
-                            print("Errore importazione \(url.lastPathComponent): \(error)")
-                            importErrorMessage = "Errore: \(error.localizedDescription)"
-                        }
-                    }
-                    if let last = lastImported {
-                        engine.load(song: last)
-                        importErrorMessage = nil
-                        dismiss()
-                    } else if !urls.isEmpty {
-                        importErrorMessage = "Impossibile aprire il file selezionato come MIDI."
-                    }
-                case .failure(let error):
-                    importErrorMessage = "Selezione annullata: \(error.localizedDescription)"
-                }
+            .alert(isPresented: Binding(
+                get: { importErrorMessage != nil },
+                set: { if !$0 { importErrorMessage = nil } }
+            )) {
+                Alert(
+                    title: Text("Importazione File MIDI"),
+                    message: Text(importErrorMessage ?? "Errore sconosciuto."),
+                    dismissButton: .default(Text("OK"))
+                )
             }
         }
     }
@@ -234,5 +221,99 @@ public struct SongListView: View {
         let mins = Int(seconds) / 60
         let secs = Int(seconds) % 60
         return String(format: "%02d:%02d", mins, secs)
+    }
+}
+
+// MARK: - Native Document Picker Manager
+public class DocumentPickerManager: NSObject, UIDocumentPickerDelegate {
+    public static let shared = DocumentPickerManager()
+    
+    private var onPickHandler: (([URL]) -> Void)?
+    private var onCancelHandler: (() -> Void)?
+    
+    private override init() {
+        super.init()
+    }
+    
+    public func presentPicker(
+        onPick: @escaping ([URL]) -> Void,
+        onCancel: (() -> Void)? = nil
+    ) {
+        self.onPickHandler = onPick
+        self.onCancelHandler = onCancel
+        
+        var types: [UTType] = []
+        if let mid = UTType(filenameExtension: "mid") { types.append(mid) }
+        if let midi = UTType(filenameExtension: "midi") { types.append(midi) }
+        if let pubMidi = UTType("public.midi") { types.append(pubMidi) }
+        if let pubMidiAudio = UTType("public.midi-audio") { types.append(pubMidiAudio) }
+        types.append(.audio)
+        types.append(.data)
+        types.append(.item)
+        
+        // Remove duplicates preserving order
+        let uniqueTypes = Array(NSOrderedSet(array: types)) as! [UTType]
+        
+        // asCopy: true ensures iOS downloads iCloud files and places a local copy in sandbox tmp/
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: uniqueTypes, asCopy: true)
+        picker.delegate = self
+        picker.allowsMultipleSelection = false // Single tap selects and immediately returns
+        picker.modalPresentationStyle = .formSheet
+        
+        guard let topVC = getTopViewController() else {
+            print("[DocumentPicker] Top view controller not found")
+            return
+        }
+        
+        topVC.present(picker, animated: true)
+    }
+    
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        controller.dismiss(animated: true) { [weak self] in
+            self?.onPickHandler?(urls)
+            self?.cleanup()
+        }
+    }
+    
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        controller.dismiss(animated: true) { [weak self] in
+            self?.onPickHandler?([url])
+            self?.cleanup()
+        }
+    }
+    
+    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        controller.dismiss(animated: true) { [weak self] in
+            self?.onCancelHandler?()
+            self?.cleanup()
+        }
+    }
+    
+    private func cleanup() {
+        onPickHandler = nil
+        onCancelHandler = nil
+    }
+    
+    private func getTopViewController(base: UIViewController? = nil) -> UIViewController? {
+        let baseVC: UIViewController? = base ?? {
+            let keyWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+            return keyWindow?.rootViewController
+        }()
+        
+        if let nav = baseVC as? UINavigationController {
+            return getTopViewController(base: nav.visibleViewController)
+        }
+        if let tab = baseVC as? UITabBarController {
+            if let selected = tab.selectedViewController {
+                return getTopViewController(base: selected)
+            }
+        }
+        if let presented = baseVC?.presentedViewController {
+            return getTopViewController(base: presented)
+        }
+        return baseVC
     }
 }

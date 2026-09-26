@@ -59,17 +59,24 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.6.0
-          name: "TeslaMIDI v1.6.0 - Risoluzione Import File MIDI e Animazione Pausa"
+          tag_name: v1.7.0
+          name: "TeslaMIDI v1.7.0 - Importazione File MIDI a Tocco Singolo e Fix Pausa"
           body: |
-            ### ⚡ TeslaMIDI v1.6.0 - Bobina di Tesla Bluetooth Interrupter per iOS
+            ### ⚡ TeslaMIDI v1.7.0 - Bobina di Tesla Bluetooth Interrupter per iOS
             
-            Novità in v1.6.0:
-            - 📁 **Risolto Selettore File MIDI**: ampliati i tipi di contenuto supportati (`.item`, `.data`, `public.midi`) per consentire il tocco e l'apertura immediata di qualsiasi file `.mid` da File e iCloud, senza blocchi.
-            - ⏸️ **Corretta Animazione in Pausa**: il cerchio visualizzatore al centro ferma immediatamente la pulsazione quando la riproduzione viene messa in pausa, mostrando chiaramente lo stato `PAUSA`.
-            - 🎶 **Selezione Multipla e Caricamento Diretto**: possibilità di importare più file contemporaneamente con chiusura automatica e brano caricato subito nel player.
+            Novità in v1.7.0:
+            - 📁 **Risolto Definitivamente l'Import File MIDI (Tocco Singolo)**:
+              - Sostituito il vecchio picker SwiftUI con `UIDocumentPickerViewController` nativo (`asCopy: true`).
+              - **Apertura istantanea al tocco**: basta toccare il file `.mid` desiderato e si apre immediatamente! Non serve più premere il pulsante "Apri" (che su iOS causava conflitti di sandbox e mancata chiusura).
+              - I file da iCloud Drive e memoria locale vengono copiati in modo sicuro nella sandbox e salvati permanentemente nella libreria dell'app.
+              - Caricamento e riproduzione immediata sulla bobina di Tesla al tocco del file.
+            - ⏸️ **Cerchio al Centro Perfettamente Fermo in Pausa**:
+              - Il visualizzatore al centro arresta completamente la pulsazione appena si preme Pausa o Stop.
+              - Visualizzazione chiara dello stato "PAUSA" in giallo e azzeramento del duty cycle.
+            - 🔊 **Anteprima Altoparlante & ESP32 GPIO 0**:
+              - Test audio immediato tramite altoparlante iPhone o trasmissione wireless BLE a ESP32-C3 SuperMini su GPIO 0.
             
-            Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** per installarla!
+            Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** (o AltStore) per aggiornare!
           files: TeslaMIDI.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

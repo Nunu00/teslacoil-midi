@@ -77,14 +77,38 @@ public class SongStorageService: ObservableObject {
             }
         }
         
-        let destinationURL = libraryDirectory.appendingPathComponent(sourceURL.lastPathComponent)
+        var fileName = sourceURL.lastPathComponent
+        if !fileName.lowercased().hasSuffix(".mid") && !fileName.lowercased().hasSuffix(".midi") {
+            fileName += ".mid"
+        }
+        
+        let destinationURL = libraryDirectory.appendingPathComponent(fileName)
         
         // Se esiste già un file con lo stesso nome, rimuovilo prima
         if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.removeItem(at: destinationURL)
+            try? FileManager.default.removeItem(at: destinationURL)
         }
         
-        let data = try Data(contentsOf: sourceURL)
+        // Lettura coordinata o diretta sicura
+        var fileData: Data? = nil
+        let coordinator = NSFileCoordinator()
+        var coordError: NSError?
+        coordinator.coordinate(readingItemAt: sourceURL, options: .withoutChanges, error: &coordError) { readURL in
+            fileData = try? Data(contentsOf: readURL)
+        }
+        
+        if fileData == nil {
+            fileData = try? Data(contentsOf: sourceURL)
+        }
+        
+        guard let data = fileData, !data.isEmpty else {
+            throw NSError(
+                domain: "TeslaMIDI",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Impossibile leggere il file selezionato (file vuoto o non accessibile)."]
+            )
+        }
+        
         try data.write(to: destinationURL)
         
         let song = try MIDIParser.parse(data: data, fileURL: destinationURL)

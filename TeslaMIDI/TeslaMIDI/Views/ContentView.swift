@@ -137,19 +137,40 @@ public struct ContentView: View {
     private var visualizerCard: some View {
         VStack(spacing: 12) {
             ZStack {
-                // Cerchio plasma pulsante di sfondo
-                Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.cyan.opacity(0.2), Color.purple.opacity(0.4), Color.cyan.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 4
-                    )
-                    .frame(width: 180, height: 180)
-                    .scaleEffect(engine.isPlaying && engine.currentPitch != nil ? 1.06 : 1.0)
-                    .animation(engine.isPlaying && engine.currentPitch != nil ? Animation.easeInOut(duration: 0.15).repeatForever(autoreverses: true) : .easeOut(duration: 0.2), value: engine.isPlaying && engine.currentPitch != nil)
+                // Cerchio plasma pulsante di sfondo (solo durante playback attivo)
+                if engine.isPlaying && engine.currentPitch != nil {
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.cyan.opacity(0.3), Color.purple.opacity(0.5), Color.cyan.opacity(0.3)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 4
+                        )
+                        .frame(width: 180, height: 180)
+                        .scaleEffect(arcPulse ? 1.07 : 1.0)
+                        .onAppear {
+                            withAnimation(Animation.easeInOut(duration: 0.15).repeatForever(autoreverses: true)) {
+                                arcPulse = true
+                            }
+                        }
+                        .onDisappear {
+                            arcPulse = false
+                        }
+                } else {
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.cyan.opacity(0.15), Color.purple.opacity(0.2), Color.cyan.opacity(0.15)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 3
+                        )
+                        .frame(width: 180, height: 180)
+                        .scaleEffect(1.0)
+                }
                 
                 Circle()
                     .fill(Color(red: 0.09, green: 0.10, blue: 0.15))

@@ -109,10 +109,10 @@ public class MIDIPlaybackEngine: ObservableObject {
         stopTimer()
         
         playbackOffsetSeconds = currentTime
-        isPlaying = false
-        isPaused = true
         
         DispatchQueue.main.async {
+            self.isPlaying = false
+            self.isPaused = true
             self.currentPitch = nil
             self.currentNoteName = "PAUSA"
             self.currentFrequencyHz = 0.0
@@ -126,8 +126,10 @@ public class MIDIPlaybackEngine: ObservableObject {
         guard isPaused, currentSong != nil else { return }
         
         playbackStartWallTime = CACurrentMediaTime()
-        isPlaying = true
-        isPaused = false
+        DispatchQueue.main.async {
+            self.isPlaying = true
+            self.isPaused = false
+        }
         
         startTimer()
     }
@@ -136,8 +138,6 @@ public class MIDIPlaybackEngine: ObservableObject {
         stopTimer()
         silenceCoilImmediate()
         
-        isPlaying = false
-        isPaused = false
         currentTime = 0.0
         progress = 0.0
         currentEventIndex = 0
@@ -145,6 +145,8 @@ public class MIDIPlaybackEngine: ObservableObject {
         currentlySoundingPitch = nil
         
         DispatchQueue.main.async {
+            self.isPlaying = false
+            self.isPaused = false
             self.resetVisuals()
         }
     }
@@ -153,8 +155,6 @@ public class MIDIPlaybackEngine: ObservableObject {
         stopTimer()
         silenceCoilImmediate()
         
-        isPlaying = false
-        isPaused = false
         currentTime = 0.0
         progress = 0.0
         currentEventIndex = 0
@@ -162,6 +162,8 @@ public class MIDIPlaybackEngine: ObservableObject {
         currentlySoundingPitch = nil
         
         DispatchQueue.main.async {
+            self.isPlaying = false
+            self.isPaused = false
             self.resetVisuals()
         }
         
