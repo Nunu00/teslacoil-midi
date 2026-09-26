@@ -11,6 +11,43 @@ public struct BluetoothModalView: View {
                 Color(red: 0.07, green: 0.08, blue: 0.12).ignoresSafeArea()
                 
                 VStack(spacing: 16) {
+                    // Avvisi di stato Bluetooth di sistema
+                    if btService.bluetoothState == .unauthorized {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                Text("Permesso Bluetooth Mancante")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                            }
+                            Text("L'app non può rilevare l'ESP32 perché il permesso Bluetooth non è stato autorizzato. Apri Impostazioni iPhone > TeslaMIDI e attiva l'interruttore Bluetooth.")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                        .padding()
+                        .background(Color.red.opacity(0.25))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    } else if btService.bluetoothState == .poweredOff {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Image(systemName: "bolt.slash.fill")
+                                    .foregroundColor(.orange)
+                                Text("Bluetooth iPhone Spento")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                            }
+                            Text("Attiva il Bluetooth dell'iPhone dal Centro di Controllo o dalle Impostazioni per connettere la bobina di Tesla.")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                        .padding()
+                        .background(Color.orange.opacity(0.25))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    }
+                    
                     // Stato Connessione Corrente
                     VStack(spacing: 8) {
                         HStack {
@@ -78,12 +115,13 @@ public struct BluetoothModalView: View {
                                     .foregroundColor(.gray.opacity(0.5))
                                 Text(btService.status == .scanning ? "Ricerca della bobina di Tesla in corso..." : "Nessun dispositivo rilevato.")
                                     .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                Text("Assicurati che l'ESP32 sia alimentato e il Bluetooth attivo.")
+                                    .foregroundColor(.white)
+                                Text("💡 Nota iOS: i dispositivi BLE-MIDI come TeslaCoil non compaiono in Impostazioni > Bluetooth dell'iPhone, ma vengono scansionati e connessi direttamente qui nell'app.")
                                     .font(.caption)
-                                    .foregroundColor(.gray.opacity(0.7))
+                                    .foregroundColor(.cyan.opacity(0.9))
                                     .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 32)
+                                    .padding(.horizontal, 24)
+                                    .padding(.top, 4)
                                 Spacer()
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)

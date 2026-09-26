@@ -59,15 +59,16 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.3.0
-          name: "TeslaMIDI v1.3.0 - IPA con Nuova Icona Grafica"
+          tag_name: v1.4.0
+          name: "TeslaMIDI v1.4.0 - Aggiornamento Connettività Bluetooth & CoreMIDI"
           body: |
-            ### ⚡ TeslaMIDI v1.3.0 - Bobina di Tesla Bluetooth Interrupter per iOS
+            ### ⚡ TeslaMIDI v1.4.0 - Bobina di Tesla Bluetooth Interrupter per iOS
             
-            Novità in v1.3.0:
-            - 🎨 **Nuova Icona App Dedicata**: icona ad alta risoluzione 1024x1024 con la bobina di Tesla al neon elettrico e onde sonore musicali su sfondo scuro metallico.
-            - 🎶 **28 Brani MIDI Inclusi**: brani iconici già pronti all'avvio.
-            - 🔊 **Anteprima Audio iPhone**: ascolto immediato tramite altoparlante del telefono.
+            Novità in v1.4.0:
+            - 📡 **Supporto Standard Ufficiale Apple CoreMIDI**: allineamento UUID del servizio BLE-MIDI allo standard MMA / Apple (`03B80E5A-EDE8-4B33-A751-6CE34EC4C700`) + retrocompatibilità.
+            - 🔍 **Scansione Bluetooth Ottimizzata**: scansione periferiche aperta senza perdita di pacchetti scan response per rilevamento istantaneo dell'ESP32.
+            - 💡 **Rilevamento Permessi e Stato Bluetooth**: avvisi chiari se il Bluetooth è spento o non autorizzato nelle impostazioni di iOS.
+            - 🎶 **28 Brani MIDI Inclusi** e **Anteprima Audio iPhone**.
             
             Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** per installarla!
           files: TeslaMIDI.ipa

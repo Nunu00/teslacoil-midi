@@ -24,9 +24,10 @@ public enum BLEConnectionStatus: String {
 public class BluetoothService: NSObject, ObservableObject {
     public static let shared = BluetoothService()
     
-    // Standard Apple BLE-MIDI UUIDs
-    public static let midiServiceUUID = CBUUID(string: "03B80E5A-EDE8-4B33-A020-008B000C7348")
-    public static let midiCharUUID    = CBUUID(string: "7772E5DB-3868-4112-A1A9-F2669D106BF3")
+    // Standard Apple BLE-MIDI UUIDs (MIDI Manufacturers Association)
+    public static let midiServiceUUID       = CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")
+    public static let legacyMidiServiceUUID = CBUUID(string: "03B80E5A-EDE8-4B33-A020-008B000C7348")
+    public static let midiCharUUID          = CBUUID(string: "7772E5DB-3868-4112-A1A9-F2669D106BF3")
     
     @Published public var status: BLEConnectionStatus = .disconnected
     @Published public var discoveredDevices: [DiscoveredDevice] = []
@@ -34,6 +35,7 @@ public class BluetoothService: NSObject, ObservableObject {
     @Published public var connectedDeviceName: String = "Nessun dispositivo"
     @Published public var currentRSSI: Int? = nil
     @Published public var isBluetoothPoweredOn: Bool = false
+    @Published public var bluetoothState: CBManagerState = .unknown
     
     private var centralManager: CBCentralManager!
     private var midiCharacteristic: CBCharacteristic? = nil
@@ -51,17 +53,11 @@ public class BluetoothService: NSObject, ObservableObject {
         discoveredDevices.removeAll()
         status = .scanning
         
-        // Cerca sia per UUID di servizio MIDI che periferiche con nome
+        // Scansione attiva su tutti i dispositivi BLE per non perdere né advertisement né scan response
         centralManager.scanForPeripherals(
-            withServices: [BluetoothService.midiServiceUUID],
+            withServices: nil,
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
-        
-        // Avvia anche scansione generica temporanea se il servizio non è nell'advertisement primario
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self, self.status == .scanning else { return }
-            self.centralManager.scanForPeripherals(withServices: nil, options: nil)
-        }
     }
     
     public func stopScanning() {
@@ -166,6 +162,7 @@ public class BluetoothService: NSObject, ObservableObject {
 
 extension BluetoothService: CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        bluetoothState = central.state
         isBluetoothPoweredOn = (central.state == .poweredOn)
         if central.state == .poweredOn {
             startScanning()
@@ -182,22 +179,26 @@ extension BluetoothService: CBCentralManagerDelegate {
                                rssi RSSI: NSNumber) {
         let name = peripheral.name ??
                    (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ??
-                   "Dispositivo Sconosciuto"
+                   ""
         
-        // Filtra dispositivi inerenti a Tesla, ESP32 o BLE-MIDI
-        let isMidiService = (advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID])?.contains(BluetoothService.midiServiceUUID) ?? false
+        let advertisedUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] ?? []
+        let isMidiService = advertisedUUIDs.contains(BluetoothService.midiServiceUUID) ||
+                            advertisedUUIDs.contains(BluetoothService.legacyMidiServiceUUID)
         let isTeslaName = name.localizedCaseInsensitiveContains("tesla") ||
                           name.localizedCaseInsensitiveContains("esp32") ||
                           name.localizedCaseInsensitiveContains("midi")
         
-        guard isMidiService || isTeslaName || advertisementData[CBAdvertisementDataServiceUUIDsKey] != nil else {
+        // Accetta se espone il servizio MIDI o ha un nome correlato
+        guard isMidiService || isTeslaName else {
             return
         }
+        
+        let displayName = !name.isEmpty ? name : "TeslaCoil-MIDI"
         
         let device = DiscoveredDevice(
             id: peripheral.identifier,
             peripheral: peripheral,
-            name: name,
+            name: displayName,
             rssi: RSSI.intValue,
             lastSeen: Date()
         )
@@ -216,7 +217,7 @@ extension BluetoothService: CBCentralManagerDelegate {
         status = .connected
         connectedDevice = peripheral
         connectedDeviceName = peripheral.name ?? "TeslaCoil-MIDI"
-        peripheral.discoverServices([BluetoothService.midiServiceUUID])
+        peripheral.discoverServices([BluetoothService.midiServiceUUID, BluetoothService.legacyMidiServiceUUID])
         startRSSITimer()
     }
     
@@ -242,7 +243,7 @@ extension BluetoothService: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
         for service in services {
-            if service.uuid == BluetoothService.midiServiceUUID {
+            if service.uuid == BluetoothService.midiServiceUUID || service.uuid == BluetoothService.legacyMidiServiceUUID {
                 peripheral.discoverCharacteristics([BluetoothService.midiCharUUID], for: service)
             }
         }

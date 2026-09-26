@@ -70,9 +70,9 @@
 #define LEDC_CHANNEL              0
 
 // ==============================================================================
-// UUID STANDARD APPLE BLUETOOTH LE MIDI
+// UUID STANDARD APPLE BLUETOOTH LE MIDI (MIDI Manufacturers Association)
 // ==============================================================================
-#define BLE_MIDI_SERVICE_UUID        "03b80e5a-ede8-4b33-a020-008b000c7348"
+#define BLE_MIDI_SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define BLE_MIDI_CHARACTERISTIC_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"
 #define DEVICE_NAME                  "TeslaCoil-MIDI"
 
@@ -490,9 +490,19 @@ void setup() {
 
     pMidiService->start();
 
-    // Avvia Advertising
+    // Avvia Advertising conforme alle specifiche Apple BLE MIDI
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(BLE_MIDI_SERVICE_UUID);
+
+    BLEAdvertisementData advData;
+    advData.setFlags(0x06); // General Discoverable + BR/EDR Not Supported (standard Apple BLE)
+    advData.setCompleteServices(BLEUUID(BLE_MIDI_SERVICE_UUID));
+    pAdvertising->setAdvertisementData(advData);
+
+    BLEAdvertisementData scanResponseData;
+    scanResponseData.setName(DEVICE_NAME);
+    pAdvertising->setScanResponseData(scanResponseData);
+
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06); // Funziona bene con iPhone / CoreBluetooth
     pAdvertising->setMinPreferred(0x12);
