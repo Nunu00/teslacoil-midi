@@ -32,7 +32,7 @@
   // --- CONFIGURAZIONE PER ESP32-C3 (es. SuperMini, DevKitM-1, XIAO C3) ---
   // NOTA CRUCIALE: Su ESP32-C3 i pin 18 e 19 sono la porta USB nativa (D- e D+).
   // Non devono mai essere usati come GPIO, altrimenti bloccano la porta USB e il Monitor Seriale!
-  #define PIN_PWM_OUTPUT           0    // GPIO 0: Uscita PWM per interrupter bobina (modalità test)
+  #define PIN_PWM_OUTPUT           0    // GPIO 0: Uscita PWM per interrupter bobina (libero e sicuro su C3)
   #define PIN_STATUS_LED           8    // GPIO 8: LED onboard comune (es. SuperMini C3)
   #define PIN_POT_ONTIME           1    // GPIO 1: ADC1_CH1 (se potenziometri abilitati)
   #define PIN_POT_PERIOD_MIN       2    // GPIO 2: ADC1_CH2 (se potenziometri abilitati)
