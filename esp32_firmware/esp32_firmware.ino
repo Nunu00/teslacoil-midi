@@ -370,30 +370,45 @@ void handleControlChange(uint8_t channel, uint8_t cc_number, uint8_t cc_value) {
 // ==============================================================================
 
 void parseBleMidiPacket(const uint8_t *data, size_t length) {
-    if (length < 3) return;
+    if (data == nullptr || length < 3) return;
 
     size_t idx = 0;
 
-    // Byte 0: Header Byte (bit 7 = 1, bit 6 = 0)
-    if ((data[0] & 0x80) && !(data[0] & 0x40)) {
+    // Se è un pacchetto Apple BLE-MIDI standard:
+    // [Header: 0x80..0xBF] [Timestamp: 0x80..0xFF] [Status: 0x80..0xEF] ...
+    // Salta l'Header (byte 0) e il Timestamp iniziale (byte 1)
+    if (length >= 3 && (data[0] & 0x80) && (data[1] & 0x80) && (data[2] & 0x80)) {
+        idx = 2; // Punta direttamente allo Status byte
+    } else if (length >= 3 && (data[0] & 0x80) && (data[1] & 0x80)) {
+        idx = 2;
+    } else if ((data[0] & 0x80) && !(data[0] & 0x40)) {
         idx = 1;
+        if (idx < length && (data[idx] & 0x80)) idx++;
     }
 
     uint8_t running_status = 0;
 
     while (idx < length) {
-        // Se il byte corrente è un timestamp (bit 7 = 1) o uno status byte
-        if (data[idx] & 0x80) {
-            if ((data[idx] & 0xF0) >= 0x80) {
-                // È uno Status Byte MIDI (0x80 - 0xEF)
-                running_status = data[idx++];
-            } else {
-                // È un byte di timestamp, salta al successivo
+        uint8_t b = data[idx];
+
+        // Se è uno status byte o un timestamp intra-packet
+        if (b & 0x80) {
+            // Se anche il byte successivo ha bit 7 = 1, 'b' è un timestamp intermedio
+            if (idx + 1 < length && (data[idx + 1] & 0x80)) {
                 idx++;
-                if (idx >= length) break;
-                if (data[idx] & 0x80) {
-                    running_status = data[idx++];
-                }
+                b = data[idx];
+            }
+
+            if ((b & 0x80) && b < 0xF8) {
+                running_status = b;
+                idx++;
+            } else if (b >= 0xF8) {
+                // Realtime message (clock, active sensing) -> salta
+                idx++;
+                continue;
+            } else {
+                idx++;
+                continue;
             }
         }
 
@@ -443,13 +458,14 @@ void parseBleMidiPacket(const uint8_t *data, size_t length) {
 // ==============================================================================
 
 class MyServerCallbacks : public BLEServerCallbacks {
-    void onConnect(BLEServer* pServer) {
+public:
+    void onConnect(BLEServer* pServer) override {
         device_connected = true;
         setStatusLed(true);
-        Serial.println(F("[BLE] iPhone Connesso!"));
+        Serial.println(F("[BLE] iPhone Connesso con successo!"));
     }
 
-    void onDisconnect(BLEServer* pServer) {
+    void onDisconnect(BLEServer* pServer) override {
         device_connected = false;
         allNotesOff();
         setStatusLed(false);
@@ -458,20 +474,21 @@ class MyServerCallbacks : public BLEServerCallbacks {
 };
 
 class MyCharacteristicCallbacks : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic *pCharacteristic) {
-#if defined(ESP_ARDUINO_VERSION_MAJOR) && (ESP_ARDUINO_VERSION_MAJOR >= 3)
-        // ESP32 Arduino Core 3.x (getValue restituisce Arduino String)
-        String rxValue = pCharacteristic->getValue();
-        if (rxValue.length() > 0) {
-            parseBleMidiPacket((const uint8_t*)rxValue.c_str(), rxValue.length());
+public:
+    void onWrite(BLECharacteristic *pCharacteristic) override {
+        uint8_t* pData = pCharacteristic->getData();
+        size_t len = pCharacteristic->getLength();
+        if (pData != nullptr && len > 0) {
+            parseBleMidiPacket(pData, len);
         }
-#else
-        // ESP32 Arduino Core 2.x (getValue restituisce std::string)
-        std::string rxValue = pCharacteristic->getValue();
-        if (rxValue.length() > 0) {
-            parseBleMidiPacket((const uint8_t*)rxValue.data(), rxValue.length());
+    }
+
+    void onWrite(BLECharacteristic *pCharacteristic, esp_ble_gatts_cb_param_t *param) override {
+        if (param != nullptr && param->write.value != nullptr && param->write.len > 0) {
+            parseBleMidiPacket(param->write.value, param->write.len);
+        } else {
+            onWrite(pCharacteristic);
         }
-#endif
     }
 };
 

@@ -134,8 +134,7 @@ public class BluetoothService: NSObject, ObservableObject {
     
     private func sendMidiPacket(_ data: Data) {
         guard let peripheral = connectedDevice,
-              let characteristic = midiCharacteristic,
-              status == .connected else { return }
+              let characteristic = midiCharacteristic else { return }
         
         let writeType: CBCharacteristicWriteType =
             characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
@@ -217,7 +216,7 @@ extension BluetoothService: CBCentralManagerDelegate {
         status = .connected
         connectedDevice = peripheral
         connectedDeviceName = peripheral.name ?? "TeslaCoil-MIDI"
-        peripheral.discoverServices([BluetoothService.midiServiceUUID, BluetoothService.legacyMidiServiceUUID])
+        peripheral.discoverServices(nil)
         startRSSITimer()
     }
     
@@ -243,19 +242,22 @@ extension BluetoothService: CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
         for service in services {
-            if service.uuid == BluetoothService.midiServiceUUID || service.uuid == BluetoothService.legacyMidiServiceUUID {
-                peripheral.discoverCharacteristics([BluetoothService.midiCharUUID], for: service)
-            }
+            peripheral.discoverCharacteristics(nil, for: service)
         }
     }
     
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
         for char in characteristics {
-            if char.uuid == BluetoothService.midiCharUUID {
+            if char.uuid == BluetoothService.midiCharUUID ||
+               char.properties.contains(.write) ||
+               char.properties.contains(.writeWithoutResponse) {
                 self.midiCharacteristic = char
-                peripheral.setNotifyValue(true, for: char)
-                print("[BLE] Caratteristica MIDI trovata e pronta per la trasmissione!")
+                if char.properties.contains(.notify) {
+                    peripheral.setNotifyValue(true, for: char)
+                }
+                print("[BLE] Caratteristica MIDI agganciata e pronta! UUID: \(char.uuid)")
+                break
             }
         }
     }
