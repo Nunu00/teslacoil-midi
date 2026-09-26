@@ -31,8 +31,7 @@ public struct SongListView: View {
                             guard let url = urls.first else { return }
                             do {
                                 let song = try storage.importSong(from: url)
-                                engine.load(song: song)
-                                engine.play()
+                                engine.play(song: song)
                                 dismiss()
                             } catch {
                                 print("[SongListView] Errore importazione: \(error)")
@@ -117,8 +116,7 @@ public struct SongListView: View {
                                 HStack {
                                     // Tocco sul brano per selezionarlo e chiudere
                                     Button(action: {
-                                        engine.load(song: song)
-                                        engine.play()
+                                        engine.play(song: song)
                                         dismiss()
                                     }) {
                                         HStack {
@@ -160,12 +158,12 @@ public struct SongListView: View {
                                         if isCurrent && engine.isPlaying {
                                             engine.pause()
                                         } else {
-                                            if !isCurrent {
-                                                engine.load(song: song)
-                                            }
-                                            // Assicurati che l'altoparlante sia attivo quando l'utente preme ascolta
                                             audioSynth.isSpeakerEnabled = true
-                                            engine.play()
+                                            if isCurrent {
+                                                engine.play()
+                                            } else {
+                                                engine.play(song: song)
+                                            }
                                         }
                                     }) {
                                         Image(systemName: isCurrent && engine.isPlaying ? "pause.circle.fill" : "play.circle.fill")

@@ -49,6 +49,7 @@ public class MIDIPlaybackEngine: ObservableObject {
     private var playbackStartWallTime: Double = 0.0
     private var playbackOffsetSeconds: Double = 0.0
     private var currentEventIndex: Int = 0
+    private var playbackSessionId: Int = 0
     
     private struct ActiveNoteEntry: Equatable {
         let pitch: UInt8
@@ -60,6 +61,14 @@ public class MIDIPlaybackEngine: ObservableObject {
     
     private init() {}
     
+    private func updateUIOnMain(_ updates: @escaping () -> Void) {
+        if Thread.isMainThread {
+            updates()
+        } else {
+            DispatchQueue.main.async(execute: updates)
+        }
+    }
+    
     // MARK: - Song Loading
     
     public func load(song: MIDISong) {
@@ -69,6 +78,7 @@ public class MIDIPlaybackEngine: ObservableObject {
         self.currentTime = 0.0
         self.progress = 0.0
         self.currentEventIndex = 0
+        self.playbackOffsetSeconds = 0.0
         
         // Inizializza i canali: attiva tutti di default, tranne il canale 9 (percussioni/batteria MIDI GM ch 10, 0-indexed 9)
         var mutes: [UInt8: Bool] = [:]
@@ -76,6 +86,11 @@ public class MIDIPlaybackEngine: ObservableObject {
             mutes[ch] = (ch == 9) // Muto per il canale di batteria di default per evitare rumore sulla bobina
         }
         self.channelMutes = mutes
+    }
+    
+    public func play(song: MIDISong) {
+        load(song: song)
+        startPlaybackFromBeginning()
     }
     
     // MARK: - Playback Controls
@@ -88,29 +103,37 @@ public class MIDIPlaybackEngine: ObservableObject {
             return
         }
         
+        startPlaybackFromBeginning()
+    }
+    
+    private func startPlaybackFromBeginning() {
+        playbackSessionId += 1
         stopTimer()
+        silenceCoilImmediate()
+        
         currentEventIndex = 0
         currentTime = 0.0
         progress = 0.0
-        activeNotes.removeAll()
-        currentlySoundingPitch = nil
-        
         playbackOffsetSeconds = 0.0
         playbackStartWallTime = CACurrentMediaTime()
-        isPlaying = true
-        isPaused = false
+        
+        updateUIOnMain {
+            self.isPlaying = true
+            self.isPaused = false
+        }
         
         startTimer()
     }
     
     public func pause() {
         guard isPlaying else { return }
-        silenceCoilImmediate()
+        playbackSessionId += 1
         stopTimer()
+        silenceCoilImmediate()
         
         playbackOffsetSeconds = currentTime
         
-        DispatchQueue.main.async {
+        updateUIOnMain {
             self.isPlaying = false
             self.isPaused = true
             self.currentPitch = nil
@@ -125,8 +148,11 @@ public class MIDIPlaybackEngine: ObservableObject {
     public func resume() {
         guard isPaused, currentSong != nil else { return }
         
+        playbackSessionId += 1
+        silenceCoilImmediate()
         playbackStartWallTime = CACurrentMediaTime()
-        DispatchQueue.main.async {
+        
+        updateUIOnMain {
             self.isPlaying = true
             self.isPaused = false
         }
@@ -135,16 +161,16 @@ public class MIDIPlaybackEngine: ObservableObject {
     }
     
     public func stop() {
+        playbackSessionId += 1
         stopTimer()
         silenceCoilImmediate()
         
         currentTime = 0.0
         progress = 0.0
         currentEventIndex = 0
-        activeNotes.removeAll()
-        currentlySoundingPitch = nil
+        playbackOffsetSeconds = 0.0
         
-        DispatchQueue.main.async {
+        updateUIOnMain {
             self.isPlaying = false
             self.isPaused = false
             self.resetVisuals()
@@ -152,16 +178,16 @@ public class MIDIPlaybackEngine: ObservableObject {
     }
     
     public func emergencyStop() {
+        playbackSessionId += 1
         stopTimer()
         silenceCoilImmediate()
         
         currentTime = 0.0
         progress = 0.0
         currentEventIndex = 0
-        activeNotes.removeAll()
-        currentlySoundingPitch = nil
+        playbackOffsetSeconds = 0.0
         
-        DispatchQueue.main.async {
+        updateUIOnMain {
             self.isPlaying = false
             self.isPaused = false
             self.resetVisuals()
@@ -177,9 +203,8 @@ public class MIDIPlaybackEngine: ObservableObject {
         let clamped = max(0.0, min(totalDuration, targetSeconds))
         let wasPlaying = isPlaying
         
+        playbackSessionId += 1
         silenceCoilImmediate()
-        activeNotes.removeAll()
-        currentlySoundingPitch = nil
         
         guard let song = currentSong else { return }
         
@@ -207,12 +232,19 @@ public class MIDIPlaybackEngine: ObservableObject {
     
     private func startTimer() {
         stopTimer()
+        let session = self.playbackSessionId
+        
         let timer = DispatchSource.makeTimerSource(flags: .strict, queue: timerQueue)
         // Timer a 5 millisecondi per massima precisione temporale MIDI
         timer.schedule(deadline: .now(), repeating: .milliseconds(5), leeway: .milliseconds(1))
         
         timer.setEventHandler { [weak self] in
-            self?.timerTick()
+            guard let self = self else { return }
+            guard self.playbackSessionId == session else {
+                timer.cancel()
+                return
+            }
+            self.timerTick(session: session)
         }
         
         self.playbackTimer = timer
@@ -224,14 +256,15 @@ public class MIDIPlaybackEngine: ObservableObject {
         playbackTimer = nil
     }
     
-    private func timerTick() {
-        guard isPlaying, let song = currentSong else { return }
+    private func timerTick(session: Int) {
+        guard isPlaying, playbackSessionId == session, let song = currentSong else { return }
         
         let now = CACurrentMediaTime()
         let elapsed = (now - playbackStartWallTime) * playbackSpeed + playbackOffsetSeconds
         
         // Fine della canzone
         if elapsed >= song.duration {
+            silenceCoilImmediate()
             if isLooping {
                 DispatchQueue.main.async {
                     self.seek(to: 0.0)
@@ -246,6 +279,7 @@ public class MIDIPlaybackEngine: ObservableObject {
         
         // Elabora eventi MIDI fino al tempo corrente
         while currentEventIndex < song.events.count {
+            guard playbackSessionId == session else { return }
             let ev = song.events[currentEventIndex]
             if ev.timeSeconds > elapsed {
                 break
@@ -254,11 +288,13 @@ public class MIDIPlaybackEngine: ObservableObject {
             // Verifica se il canale è mutato
             let isMuted = channelMutes[ev.channel] ?? false
             if !isMuted {
-                processMidiEvent(ev)
+                processMidiEvent(ev, session: session)
             }
             
             currentEventIndex += 1
         }
+        
+        guard playbackSessionId == session else { return }
         
         // Aggiorna stato UI su Main Thread con throttling
         let progressVal = song.duration > 0 ? (elapsed / song.duration) : 0.0
@@ -268,21 +304,23 @@ public class MIDIPlaybackEngine: ObservableObject {
         }
     }
     
-    private func processMidiEvent(_ ev: MIDIEvent) {
+    private func processMidiEvent(_ ev: MIDIEvent, session: Int) {
+        guard playbackSessionId == session else { return }
         if ev.isNoteOn {
             let entry = ActiveNoteEntry(pitch: ev.data1, channel: ev.channel, velocity: ev.data2)
             // Aggiungi se non già presente
             if !activeNotes.contains(entry) {
                 activeNotes.append(entry)
             }
-            evaluateActiveNoteOutput()
+            evaluateActiveNoteOutput(session: session)
         } else if ev.isNoteOff {
             activeNotes.removeAll { $0.pitch == ev.data1 && $0.channel == ev.channel }
-            evaluateActiveNoteOutput()
+            evaluateActiveNoteOutput(session: session)
         }
     }
     
-    private func evaluateActiveNoteOutput() {
+    private func evaluateActiveNoteOutput(session: Int) {
+        guard playbackSessionId == session else { return }
         guard !activeNotes.isEmpty else {
             // Nessuna nota attiva: spegni
             if let current = currentlySoundingPitch {
@@ -311,6 +349,7 @@ public class MIDIPlaybackEngine: ObservableObject {
         
         // Se la nota da suonare è cambiata rispetto alla nota attualmente attiva sulla bobina
         if selectedPitch != currentlySoundingPitch {
+            guard playbackSessionId == session else { return }
             if let oldPitch = currentlySoundingPitch {
                 BluetoothService.shared.sendNoteOff(channel: 0, pitch: oldPitch)
             }
@@ -336,12 +375,13 @@ public class MIDIPlaybackEngine: ObservableObject {
         }
     }
     
-    private func silenceCoilImmediate() {
+    public func silenceCoilImmediate() {
         AudioToneSynthesizer.shared.stopTone()
         if let current = currentlySoundingPitch {
             BluetoothService.shared.sendNoteOff(channel: 0, pitch: current)
             currentlySoundingPitch = nil
         }
+        activeNotes.removeAll()
         BluetoothService.shared.sendAllNotesOff()
     }
     

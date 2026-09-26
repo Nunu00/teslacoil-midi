@@ -152,6 +152,7 @@ public class AudioToneSynthesizer: ObservableObject {
     }
     
     public func stopTone() {
+        self.isToneActive = false
         audioQueue.async {
             self.isToneActive = false
         }

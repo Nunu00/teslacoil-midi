@@ -59,22 +59,21 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.7.0
-          name: "TeslaMIDI v1.7.0 - Importazione File MIDI a Tocco Singolo e Fix Pausa"
+          tag_name: v1.7.1
+          name: "TeslaMIDI v1.7.1 - Risoluzione Bug Nota Fissa Continua al Cambio Brano"
           body: |
-            ### ⚡ TeslaMIDI v1.7.0 - Bobina di Tesla Bluetooth Interrupter per iOS
+            ### ⚡ TeslaMIDI v1.7.1 - Bobina di Tesla Bluetooth Interrupter per iOS
             
-            Novità in v1.7.0:
-            - 📁 **Risolto Definitivamente l'Import File MIDI (Tocco Singolo)**:
-              - Sostituito il vecchio picker SwiftUI con `UIDocumentPickerViewController` nativo (`asCopy: true`).
-              - **Apertura istantanea al tocco**: basta toccare il file `.mid` desiderato e si apre immediatamente! Non serve più premere il pulsante "Apri" (che su iOS causava conflitti di sandbox e mancata chiusura).
-              - I file da iCloud Drive e memoria locale vengono copiati in modo sicuro nella sandbox e salvati permanentemente nella libreria dell'app.
-              - Caricamento e riproduzione immediata sulla bobina di Tesla al tocco del file.
-            - ⏸️ **Cerchio al Centro Perfettamente Fermo in Pausa**:
-              - Il visualizzatore al centro arresta completamente la pulsazione appena si preme Pausa o Stop.
-              - Visualizzazione chiara dello stato "PAUSA" in giallo e azzeramento del duty cycle.
-            - 🔊 **Anteprima Altoparlante & ESP32 GPIO 0**:
-              - Test audio immediato tramite altoparlante iPhone o trasmissione wireless BLE a ESP32-C3 SuperMini su GPIO 0.
+            Novità in v1.7.1:
+            - 🎵 **Risolto Definitivamente il Bug della Nota Fissa Continua**:
+              - Eliminata la race condition multi-thread tra il timer MIDI in background e il thread principale.
+              - Introdotto un **token di sessione atomico** (`playbackSessionId`): quando si avvia un nuovo brano o si preme stop/pausa, qualsiasi evento residuo del brano precedente viene scartato istantaneamente prima di raggiungere la bobina o l'altoparlante.
+              - **Silenziamento istantaneo**: azzeramento immediato del sintetizzatore audio iPhone e invio Note Off garantito all'ESP32.
+              - Implementato il metodo dedicato `play(song:)` per avviare sempre i nuovi brani da capo a tempo 0.0, senza falsi stati di ripresa (resume).
+            - 📁 **Importazione File MIDI a Tocco Singolo (File / iCloud)**:
+              - Tocco diretto sul file `.mid` senza bisogno del tasto "Apri".
+            - ⏸️ **Visualizzatore Statico in Pausa**:
+              - Cerchio fermo e azzeramento duty cycle quando la bobina non sta suonando.
             
             Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** (o AltStore) per aggiornare!
           files: TeslaMIDI.ipa
