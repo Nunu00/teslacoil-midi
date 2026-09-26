@@ -482,14 +482,6 @@ public:
             parseBleMidiPacket(pData, len);
         }
     }
-
-    void onWrite(BLECharacteristic *pCharacteristic, esp_ble_gatts_cb_param_t *param) override {
-        if (param != nullptr && param->write.value != nullptr && param->write.len > 0) {
-            parseBleMidiPacket(param->write.value, param->write.len);
-        } else {
-            onWrite(pCharacteristic);
-        }
-    }
 };
 
 // ==============================================================================
