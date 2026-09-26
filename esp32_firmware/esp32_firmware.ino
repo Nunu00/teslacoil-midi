@@ -26,15 +26,28 @@
 #include <BLE2902.h>
 
 // ==============================================================================
-// CONFIGURAZIONE PIN HARDWARE
+// CONFIGURAZIONE PIN HARDWARE (Auto-rilevamento ESP32-C3 vs ESP32 Standard)
 // ==============================================================================
-#define PIN_PWM_OUTPUT          18    // Pin di uscita verso l'interrupter della bobina
-#define PIN_STATUS_LED           2    // LED di stato (LED onboard sulla maggior parte degli ESP32)
+#if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(ARDUINO_ESP32C3_DEV) || defined(ESP32C3)
+  // --- CONFIGURAZIONE PER ESP32-C3 (es. SuperMini, DevKitM-1, XIAO C3) ---
+  // NOTA CRUCIALE: Su ESP32-C3 i pin 18 e 19 sono la porta USB nativa (D- e D+).
+  // Non devono mai essere usati come GPIO, altrimenti bloccano la porta USB e il Monitor Seriale!
+  #define PIN_PWM_OUTPUT           4    // GPIO 4: Uscita PWM per interrupter bobina
+  #define PIN_STATUS_LED           8    // GPIO 8: LED onboard comune (es. SuperMini C3)
+  #define PIN_POT_ONTIME           0    // GPIO 0: ADC1_CH0 (se potenziometri abilitati)
+  #define PIN_POT_PERIOD_MIN       1    // GPIO 1: ADC1_CH1 (se potenziometri abilitati)
+  #define IS_ESP32_C3           true
+#else
+  // --- CONFIGURAZIONE PER ESP32 STANDARD (WROOM, DevKit V1) ---
+  #define PIN_PWM_OUTPUT          18    // GPIO 18: Uscita PWM per interrupter bobina
+  #define PIN_STATUS_LED           2    // GPIO 2: LED onboard blu standard
+  #define PIN_POT_ONTIME          34    // GPIO 34: ADC1_CH6
+  #define PIN_POT_PERIOD_MIN      35    // GPIO 35: ADC1_CH7
+  #define IS_ESP32_C3          false
+#endif
 
 // Abilita potenziometri analogici fisici (opzionale, impostare a true se collegati)
 #define ENABLE_ANALOG_POTS   false    // false: controllato da App/valori di default
-#define PIN_POT_ONTIME          34    // ADC1_CH6 (solo se ENABLE_ANALOG_POTS è true)
-#define PIN_POT_PERIOD_MIN      35    // ADC1_CH7 (solo se ENABLE_ANALOG_POTS è true)
 
 // ==============================================================================
 // LIMITI DI SICUREZZA BOBINA DI TESLA (DRSSTC / SSTC)
@@ -109,6 +122,19 @@ BLEServer *pServer = NULL;
 BLECharacteristic *pMidiCharacteristic = NULL;
 
 // ==============================================================================
+// GESTIONE LED DI STATO
+// ==============================================================================
+
+void setStatusLed(bool on) {
+#if IS_ESP32_C3
+    // Su ESP32-C3 (es. SuperMini) il LED utente su GPIO 8 è collegato ad anodo comune (attivo LOW)
+    digitalWrite(PIN_STATUS_LED, on ? LOW : HIGH);
+#else
+    digitalWrite(PIN_STATUS_LED, on ? HIGH : LOW);
+#endif
+}
+
+// ==============================================================================
 // FUNZIONI HARDWARE PWM (LEDC COMPATIBILE ESP32 V2 E V3)
 // ==============================================================================
 
@@ -154,7 +180,7 @@ void stopPwmOutput() {
     ledcWrite(LEDC_CHANNEL, 0);
 #endif
     current_playing_pitch = -1;
-    digitalWrite(PIN_STATUS_LED, device_connected ? HIGH : LOW);
+    setStatusLed(device_connected);
 }
 
 // ==============================================================================
@@ -194,8 +220,8 @@ void applyPitch(uint8_t pitch) {
     current_playing_pitch = pitch;
     note_start_time = millis();
 
-    // Lampeggio visivo LED di stato
-    digitalWrite(PIN_STATUS_LED, LOW);
+    // Accendi LED durante la riproduzione
+    setStatusLed(true);
 }
 
 void handleNoteOn(uint8_t channel, uint8_t pitch, uint8_t velocity) {
@@ -366,14 +392,14 @@ void parseBleMidiPacket(const uint8_t *data, size_t length) {
 class MyServerCallbacks : public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
         device_connected = true;
-        digitalWrite(PIN_STATUS_LED, HIGH);
+        setStatusLed(true);
         Serial.println(F("[BLE] iPhone Connesso!"));
     }
 
     void onDisconnect(BLEServer* pServer) {
         device_connected = false;
         allNotesOff();
-        digitalWrite(PIN_STATUS_LED, LOW);
+        setStatusLed(false);
         Serial.println(F("[BLE] iPhone Disconnesso - Interrupter SPENTO"));
     }
 };
@@ -402,14 +428,28 @@ class MyCharacteristicCallbacks : public BLECharacteristicCallbacks {
 
 void setup() {
     Serial.begin(115200);
+
+#if IS_ESP32_C3
+    // Attesa per stabilizzazione USB CDC su ESP32-C3
+    delay(1500);
+#else
     delay(500);
+#endif
+
     Serial.println();
     Serial.println(F("=================================================="));
-    Serial.println(F("   Tesla Coil BLE MIDI Interrupter - ESP32        "));
+    Serial.println(F("   Tesla Coil BLE MIDI Interrupter                "));
+#if IS_ESP32_C3
+    Serial.println(F("   [Target: ESP32-C3] -> Interrupter Out: GPIO 4 "));
+    Serial.println(F("   [Target: ESP32-C3] -> Status LED:      GPIO 8 "));
+#else
+    Serial.println(F("   [Target: ESP32 Standard] -> Interrupter: GPIO 18"));
+    Serial.println(F("   [Target: ESP32 Standard] -> Status LED:  GPIO 2 "));
+#endif
     Serial.println(F("=================================================="));
 
     pinMode(PIN_STATUS_LED, OUTPUT);
-    digitalWrite(PIN_STATUS_LED, LOW);
+    setStatusLed(false);
 
     // Inizializza l'uscita PWM
     initPwmHardware();
@@ -426,8 +466,10 @@ void setup() {
     Serial.println(F("[BLE] Inizializzazione BLE MIDI..."));
     BLEDevice::init(DEVICE_NAME);
 
-    // Imposta la potenza di trasmissione massima per contrastare l'EMI della bobina
+#if !IS_ESP32_C3
+    // Imposta la potenza di trasmissione massima (solo ESP32 standard)
     esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9);
+#endif
 
     pServer = BLEDevice::createServer();
     pServer->setCallbacks(new MyServerCallbacks());
@@ -456,7 +498,9 @@ void setup() {
     pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
 
-    Serial.println(F("[BLE] In attesa di connessione da iPhone..."));
+    Serial.println(F("[BLE] Advertising avviato con successo!"));
+    Serial.println(F("[BLE] Nome dispositivo: TeslaCoil-MIDI"));
+    Serial.println(F("[BLE] In attesa di connessione dall'app TeslaMIDI su iPhone..."));
 }
 
 // ==============================================================================
@@ -496,9 +540,11 @@ void loop() {
     // Lampeggio lento del LED di stato quando in attesa di connessione
     if (!device_connected) {
         static unsigned long last_blink = 0;
-        if (millis() - last_blink > 800) {
+        static bool blink_state = false;
+        if (millis() - last_blink > 600) {
             last_blink = millis();
-            digitalWrite(PIN_STATUS_LED, !digitalRead(PIN_STATUS_LED));
+            blink_state = !blink_state;
+            setStatusLed(blink_state);
         }
     }
 
