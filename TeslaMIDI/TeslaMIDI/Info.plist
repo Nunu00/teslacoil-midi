@@ -53,9 +53,38 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
+				<string>public.midi</string>
 				<string>public.midi-audio</string>
 				<string>public.audio</string>
+				<string>public.data</string>
 			</array>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>public.midi</string>
+			<key>UTTypeDescription</key>
+			<string>MIDI Audio File</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.audio</string>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mid</string>
+					<string>midi</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>audio/midi</string>
+					<string>audio/x-midi</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>

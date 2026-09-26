@@ -111,6 +111,15 @@ public class MIDIPlaybackEngine: ObservableObject {
         playbackOffsetSeconds = currentTime
         isPlaying = false
         isPaused = true
+        
+        DispatchQueue.main.async {
+            self.currentPitch = nil
+            self.currentNoteName = "PAUSA"
+            self.currentFrequencyHz = 0.0
+            self.currentPeriodUs = 0.0
+            self.dutyCyclePercent = 0.0
+            self.dutyCycleWarning = false
+        }
     }
     
     public func resume() {

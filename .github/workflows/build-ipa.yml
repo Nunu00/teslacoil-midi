@@ -59,15 +59,15 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.5.0
-          name: "TeslaMIDI v1.5.0 - Risoluzione Trasmissione Note e Parsing BLE-MIDI"
+          tag_name: v1.6.0
+          name: "TeslaMIDI v1.6.0 - Risoluzione Import File MIDI e Animazione Pausa"
           body: |
-            ### ⚡ TeslaMIDI v1.5.0 - Bobina di Tesla Bluetooth Interrupter per iOS
+            ### ⚡ TeslaMIDI v1.6.0 - Bobina di Tesla Bluetooth Interrupter per iOS
             
-            Novità in v1.5.0:
-            - 🎹 **Aggancio Automatico Caratteristica MIDI**: discovery aperta dei servizi e aggancio immediato alla caratteristica di scrittura BLE.
-            - ⚡ **Risolto Parsing Timestamp Apple**: corretto l'algoritmo di decodifica dei pacchetti MIDI sull'ESP32 che bloccava le note in arrivo.
-            - 🎛️ **Feedback Seriale e Oscilloscopio Immediato**: output garantito su GPIO configurato.
+            Novità in v1.6.0:
+            - 📁 **Risolto Selettore File MIDI**: ampliati i tipi di contenuto supportati (`.item`, `.data`, `public.midi`) per consentire il tocco e l'apertura immediata di qualsiasi file `.mid` da File e iCloud, senza blocchi.
+            - ⏸️ **Corretta Animazione in Pausa**: il cerchio visualizzatore al centro ferma immediatamente la pulsazione quando la riproduzione viene messa in pausa, mostrando chiaramente lo stato `PAUSA`.
+            - 🎶 **Selezione Multipla e Caricamento Diretto**: possibilità di importare più file contemporaneamente con chiusura automatica e brano caricato subito nel player.
             
             Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** per installarla!
           files: TeslaMIDI.ipa

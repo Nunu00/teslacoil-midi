@@ -195,24 +195,36 @@ public struct SongListView: View {
             .fileImporter(
                 isPresented: $isShowingFilePicker,
                 allowedContentTypes: [
-                    UTType.midi,
-                    UTType(filenameExtension: "mid") ?? .data,
-                    UTType(filenameExtension: "midi") ?? .data
+                    .item,
+                    .data,
+                    .audio,
+                    .content,
+                    UTType("public.midi") ?? .item,
+                    UTType("public.midi-audio") ?? .item
                 ],
-                allowsMultipleSelection: false
+                allowsMultipleSelection: true
             ) { result in
                 switch result {
                 case .success(let urls):
-                    guard let url = urls.first else { return }
-                    do {
-                        let imported = try storage.importSong(from: url)
-                        engine.load(song: imported)
+                    var lastImported: MIDISong? = nil
+                    for url in urls {
+                        do {
+                            let imported = try storage.importSong(from: url)
+                            lastImported = imported
+                        } catch {
+                            print("Errore importazione \(url.lastPathComponent): \(error)")
+                            importErrorMessage = "Errore: \(error.localizedDescription)"
+                        }
+                    }
+                    if let last = lastImported {
+                        engine.load(song: last)
                         importErrorMessage = nil
-                    } catch {
-                        importErrorMessage = "Impossibile importare: \(error.localizedDescription)"
+                        dismiss()
+                    } else if !urls.isEmpty {
+                        importErrorMessage = "Impossibile aprire il file selezionato come MIDI."
                     }
                 case .failure(let error):
-                    importErrorMessage = "Selezione annullata o non valida: \(error.localizedDescription)"
+                    importErrorMessage = "Selezione annullata: \(error.localizedDescription)"
                 }
             }
         }

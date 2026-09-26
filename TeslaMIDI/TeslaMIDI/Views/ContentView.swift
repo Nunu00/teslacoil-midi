@@ -148,20 +148,20 @@ public struct ContentView: View {
                         lineWidth: 4
                     )
                     .frame(width: 180, height: 180)
-                    .scaleEffect(engine.currentPitch != nil ? 1.05 : 1.0)
-                    .animation(engine.currentPitch != nil ? Animation.easeInOut(duration: 0.15).repeatForever(autoreverses: true) : .default, value: engine.currentPitch)
+                    .scaleEffect(engine.isPlaying && engine.currentPitch != nil ? 1.06 : 1.0)
+                    .animation(engine.isPlaying && engine.currentPitch != nil ? Animation.easeInOut(duration: 0.15).repeatForever(autoreverses: true) : .easeOut(duration: 0.2), value: engine.isPlaying && engine.currentPitch != nil)
                 
                 Circle()
                     .fill(Color(red: 0.09, green: 0.10, blue: 0.15))
                     .frame(width: 160, height: 160)
                 
                 VStack(spacing: 4) {
-                    Text(engine.currentNoteName)
-                        .font(.system(size: 46, weight: .black, design: .monospaced))
-                        .foregroundColor(engine.currentPitch != nil ? .cyan : .gray.opacity(0.4))
-                        .shadow(color: engine.currentPitch != nil ? .cyan.opacity(0.6) : .clear, radius: 10)
+                    Text(engine.isPaused ? "PAUSA" : engine.currentNoteName)
+                        .font(.system(size: engine.isPaused ? 30 : 46, weight: .black, design: .monospaced))
+                        .foregroundColor((engine.isPlaying && engine.currentPitch != nil) ? .cyan : (engine.isPaused ? .yellow : .gray.opacity(0.4)))
+                        .shadow(color: (engine.isPlaying && engine.currentPitch != nil) ? .cyan.opacity(0.6) : .clear, radius: 10)
                     
-                    if engine.currentPitch != nil {
+                    if engine.isPlaying, let _ = engine.currentPitch {
                         Text(String(format: "%.1f Hz", engine.currentFrequencyHz))
                             .font(.headline)
                             .bold()
@@ -170,6 +170,11 @@ public struct ContentView: View {
                         Text(String(format: "T = %.0f µs", engine.currentPeriodUs))
                             .font(.caption2)
                             .foregroundColor(.gray)
+                    } else if engine.isPaused {
+                        Text("IN PAUSA")
+                            .font(.caption)
+                            .bold()
+                            .foregroundColor(.yellow.opacity(0.8))
                     } else {
                         Text("IN ATTESA")
                             .font(.caption)
