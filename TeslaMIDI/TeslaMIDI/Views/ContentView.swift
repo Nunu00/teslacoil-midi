@@ -89,25 +89,31 @@ public struct ContentView: View {
     
     private var topBarView: some View {
         HStack {
-            // Badge Bluetooth cliccabile
+            // Badge Connessione cliccabile (Bluetooth o Wi-Fi)
             Button(action: {
                 isShowingBluetooth = true
             }) {
                 HStack(spacing: 8) {
                     Circle()
-                        .fill(btService.status == .connected ? Color.green : Color.orange)
+                        .fill(btService.isConnected ? Color.green : Color.orange)
                         .frame(width: 10, height: 10)
                     
-                    Image(systemName: "bolt.fill")
-                        .foregroundColor(btService.status == .connected ? .cyan : .orange)
+                    Image(systemName: btService.connectionMode == .wifi ? "wifi" : "bolt.fill")
+                        .foregroundColor(btService.isConnected ? (btService.connectionMode == .wifi ? .green : .cyan) : .orange)
                         .font(.caption)
                     
-                    Text(btService.status == .connected ? btService.connectedDeviceName : "Connetti Bobina")
+                    Text(btService.isConnected ? (btService.connectionMode == .wifi ? "NodeMCU (\(btService.wifiHost))" : btService.connectedDeviceName) : (btService.connectionMode == .wifi ? "Connetti Wi-Fi" : "Connetti Bobina"))
                         .font(.caption)
                         .bold()
                         .foregroundColor(.white)
                     
-                    if let rssi = btService.currentRSSI {
+                    if btService.connectionMode == .wifi {
+                        if btService.isWifiConnected, let ping = btService.wifiPingMs {
+                            Text("\(ping) ms")
+                                .font(.caption2)
+                                .foregroundColor(.green.opacity(0.8))
+                        }
+                    } else if let rssi = btService.currentRSSI {
                         Text("\(rssi) dBm")
                             .font(.caption2)
                             .foregroundColor(.gray)
@@ -558,8 +564,8 @@ public struct ContentView: View {
                 isShowingBluetooth = true
             }) {
                 VStack(spacing: 4) {
-                    Image(systemName: "antenna.radiowaves.left.and.right")
-                    Text("Bluetooth")
+                    Image(systemName: btService.connectionMode == .wifi ? "wifi" : "antenna.radiowaves.left.and.right")
+                    Text(btService.connectionMode == .wifi ? "Wi-Fi" : "Bluetooth")
                         .font(.caption2)
                 }
                 .foregroundColor(.white.opacity(0.8))

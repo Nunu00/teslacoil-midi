@@ -1,6 +1,13 @@
 import Foundation
 import CoreBluetooth
 import Combine
+import Network
+
+public enum ConnectionMode: String, CaseIterable, Identifiable {
+    case bluetooth = "⚡ Bluetooth (ESP32)"
+    case wifi = "📡 Wi-Fi UDP (NodeMCU)"
+    public var id: String { rawValue }
+}
 
 public struct DiscoveredDevice: Identifiable, Equatable {
     public let id: UUID
@@ -29,6 +36,40 @@ public class BluetoothService: NSObject, ObservableObject {
     public static let legacyMidiServiceUUID = CBUUID(string: "03B80E5A-EDE8-4B33-A020-008B000C7348")
     public static let midiCharUUID          = CBUUID(string: "7772E5DB-3868-4112-A1A9-F2669D106BF3")
     
+    // Modalità di connessione (Bluetooth o Wi-Fi UDP)
+    @Published public var connectionMode: ConnectionMode = .wifi {
+        didSet {
+            UserDefaults.standard.set(connectionMode.rawValue, forKey: "TeslaMIDI_ConnectionMode")
+            if connectionMode == .wifi {
+                startWifiConnection()
+            } else {
+                stopWifiConnection()
+            }
+        }
+    }
+    
+    // Parametri Wi-Fi UDP (ESP8266 NodeMCU)
+    @Published public var wifiHost: String = "192.168.4.1" {
+        didSet {
+            UserDefaults.standard.set(wifiHost, forKey: "TeslaMIDI_WifiHost")
+        }
+    }
+    @Published public var wifiPort: UInt16 = 5004 {
+        didSet {
+            UserDefaults.standard.set(Int(wifiPort), forKey: "TeslaMIDI_WifiPort")
+        }
+    }
+    @Published public var isWifiConnected: Bool = false
+    @Published public var wifiPingMs: Int? = nil
+    
+    public var isConnected: Bool {
+        if connectionMode == .wifi {
+            return isWifiConnected
+        } else {
+            return status == .connected
+        }
+    }
+    
     @Published public var status: BLEConnectionStatus = .disconnected
     @Published public var discoveredDevices: [DiscoveredDevice] = []
     @Published public var connectedDevice: CBPeripheral? = nil
@@ -41,9 +82,29 @@ public class BluetoothService: NSObject, ObservableObject {
     private var midiCharacteristic: CBCharacteristic? = nil
     private var rssiTimer: Timer? = nil
     
+    private var udpConnection: NWConnection?
+    private var udpPingTimer: Timer?
+    private var pingStartTime: Date?
+    
     override private init() {
+        if let savedMode = UserDefaults.standard.string(forKey: "TeslaMIDI_ConnectionMode"),
+           let mode = ConnectionMode(rawValue: savedMode) {
+            self.connectionMode = mode
+        }
+        if let savedHost = UserDefaults.standard.string(forKey: "TeslaMIDI_WifiHost"), !savedHost.isEmpty {
+            self.wifiHost = savedHost
+        }
+        let savedPort = UserDefaults.standard.integer(forKey: "TeslaMIDI_WifiPort")
+        if savedPort > 0 && savedPort <= 65535 {
+            self.wifiPort = UInt16(savedPort)
+        }
+        
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
+        
+        if connectionMode == .wifi {
+            startWifiConnection()
+        }
     }
     
     // MARK: - Scanning & Connection
@@ -133,13 +194,118 @@ public class BluetoothService: NSObject, ObservableObject {
     }
     
     private func sendMidiPacket(_ data: Data) {
-        guard let peripheral = connectedDevice,
-              let characteristic = midiCharacteristic else { return }
+        if connectionMode == .wifi {
+            sendUdpPacket(data)
+        } else {
+            guard let peripheral = connectedDevice,
+                  let characteristic = midiCharacteristic else { return }
+            
+            let writeType: CBCharacteristicWriteType =
+                characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
+            
+            peripheral.writeValue(data, for: characteristic, type: writeType)
+        }
+    }
+    
+    // MARK: - Wi-Fi UDP Networking (ESP8266 NodeMCU)
+    
+    public func startWifiConnection() {
+        stopWifiConnection()
         
-        let writeType: CBCharacteristicWriteType =
-            characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
+        let host = NWEndpoint.Host(wifiHost)
+        guard let port = NWEndpoint.Port(rawValue: wifiPort) else { return }
         
-        peripheral.writeValue(data, for: characteristic, type: writeType)
+        let params = NWParameters.udp
+        params.allowLocalEndpointReuse = true
+        
+        let conn = NWConnection(host: host, port: port, using: params)
+        conn.stateUpdateHandler = { [weak self] state in
+            DispatchQueue.main.async {
+                switch state {
+                case .ready:
+                    print("[WiFiUDP] Socket UDP pronto verso \(self?.wifiHost ?? ""):\(self?.wifiPort ?? 0)")
+                    self?.listenUdpResponses()
+                case .failed(let err):
+                    print("[WiFiUDP] Errore connessione UDP: \(err)")
+                    self?.isWifiConnected = false
+                default:
+                    break
+                }
+            }
+        }
+        
+        conn.start(queue: .global(qos: .userInteractive))
+        self.udpConnection = conn
+        
+        startUdpPingTimer()
+    }
+    
+    public func stopWifiConnection() {
+        stopUdpPingTimer()
+        udpConnection?.cancel()
+        udpConnection = nil
+        isWifiConnected = false
+        wifiPingMs = nil
+    }
+    
+    public func sendUdpPacket(_ data: Data) {
+        guard let conn = udpConnection else {
+            startWifiConnection()
+            return
+        }
+        conn.send(content: data, completion: .contentProcessed({ error in
+            if let error = error {
+                print("[WiFiUDP] Errore invio pacchetto: \(error)")
+            }
+        }))
+    }
+    
+    private func listenUdpResponses() {
+        udpConnection?.receiveMessage { [weak self] content, context, isComplete, error in
+            guard let self = self else { return }
+            if let data = content, data.count >= 2 {
+                if data[0] == 0xFF && data[1] == 0x02 {
+                    // Pong ricevuto da ESP8266!
+                    DispatchQueue.main.async {
+                        if let start = self.pingStartTime {
+                            let ms = Int(Date().timeIntervalSince(start) * 1000.0)
+                            self.wifiPingMs = max(1, ms)
+                        }
+                        self.isWifiConnected = true
+                    }
+                }
+            }
+            if error == nil {
+                self.listenUdpResponses()
+            }
+        }
+    }
+    
+    private func startUdpPingTimer() {
+        stopUdpPingTimer()
+        sendUdpPing()
+        udpPingTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            self?.sendUdpPing()
+        }
+    }
+    
+    private func stopUdpPingTimer() {
+        udpPingTimer?.invalidate()
+        udpPingTimer = nil
+    }
+    
+    public func sendUdpPing() {
+        guard connectionMode == .wifi else { return }
+        pingStartTime = Date()
+        let pingPacket = Data([0xFF, 0x01])
+        sendUdpPacket(pingPacket)
+    }
+    
+    public func sendTestNote() {
+        sendNoteOn(channel: 0, pitch: 69, velocity: 100) // Note A4 (440 Hz)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.sendNoteOff(channel: 0, pitch: 69)
+        }
     }
     
     // MARK: - RSSI Polling
