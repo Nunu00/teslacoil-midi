@@ -37,6 +37,36 @@ public struct ContentView: View {
                     .padding(.horizontal)
                     .padding(.top, 4)
                 
+                if btService.isTest200kActive {
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.orange)
+                        Text("TEST 200 kHz ATTIVO (PIN D2)")
+                            .font(.caption)
+                            .bold()
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button(action: {
+                            btService.setTest200kActive(false)
+                        }) {
+                            Text("FERMA")
+                                .font(.caption2)
+                                .bold()
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(6)
+                        }
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color.orange.opacity(0.2))
+                    .cornerRadius(10)
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.orange, lineWidth: 1))
+                    .padding(.horizontal)
+                }
+                
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         // 2. VISUALIZZATORE ARCO ELETTRICO & FREQUENZA
@@ -510,6 +540,9 @@ public struct ContentView: View {
     
     private var emergencyStopButton: some View {
         Button(action: {
+            if btService.isTest200kActive {
+                btService.setTest200kActive(false)
+            }
             engine.emergencyStop()
         }) {
             HStack(spacing: 10) {

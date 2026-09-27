@@ -61,6 +61,7 @@ public class BluetoothService: NSObject, ObservableObject {
     }
     @Published public var isWifiConnected: Bool = false
     @Published public var wifiPingMs: Int? = nil
+    @Published public var isTest200kActive: Bool = false
     
     public var isConnected: Bool {
         if connectionMode == .wifi {
@@ -174,6 +175,9 @@ public class BluetoothService: NSObject, ObservableObject {
     }
     
     public func sendAllNotesOff(channel: UInt8 = 0) {
+        if isTest200kActive {
+            setTest200kActive(false)
+        }
         // Invia CC 120 (All Sound Off) e CC 123 (All Notes Off)
         sendControlChange(channel: channel, ccNumber: 120, value: 0)
         sendControlChange(channel: channel, ccNumber: 123, value: 0)
@@ -272,6 +276,9 @@ public class BluetoothService: NSObject, ObservableObject {
                             self.wifiPingMs = max(1, ms)
                         }
                         self.isWifiConnected = true
+                        if data.count >= 6 {
+                            self.isTest200kActive = (data[5] == 1)
+                        }
                     }
                 }
             }
@@ -306,6 +313,22 @@ public class BluetoothService: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.sendNoteOff(channel: 0, pitch: 69)
         }
+    }
+    
+    // MARK: - Segnale Test Hardware 200 kHz (Pin D2 / GPIO 4)
+    
+    public func setTest200kActive(_ active: Bool) {
+        isTest200kActive = active
+        if connectionMode == .wifi {
+            let cmd: [UInt8] = [0xFF, 0x10, active ? 0x01 : 0x00]
+            sendUdpPacket(Data(cmd))
+        }
+        // Invia anche MIDI CC 16 per interoperabilità
+        sendControlChange(channel: 0, ccNumber: 16, value: active ? 127 : 0)
+    }
+    
+    public func toggleTest200k() {
+        setTest200kActive(!isTest200kActive)
     }
     
     // MARK: - RSSI Polling

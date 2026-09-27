@@ -4,3 +4,5 @@ TeslaMIDI-SideStore/
 build/
 DerivedData/
 .DS_Store
+.theia/
+esp8266_firmware/build/

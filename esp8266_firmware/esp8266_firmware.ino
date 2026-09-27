@@ -36,6 +36,7 @@ extern "C" {
 // D1 = GPIO 5 (Miglior pin per PWM/interrupter: nessun conflitto al boot!)
 // D4 = GPIO 2 (LED blu onboard della scheda ESP-12, attivo LOW)
 #define PIN_PWM_OUTPUT          5   // D1 (GPIO 5) -> Uscita segnale interrupter per bobina
+#define PIN_TEST_200K           4   // D2 (GPIO 4) -> Uscita onda quadra test ~200 kHz continua
 #define PIN_STATUS_LED          2   // D4 (GPIO 2) -> LED blu onboard
 
 // ==============================================================================
@@ -100,6 +101,13 @@ volatile int8_t current_playing_pitch = -1;
 volatile unsigned long last_packet_time = 0;
 volatile bool timer_is_active = false;
 
+// Stato generatore di test 200 kHz (Pin D2 / GPIO 4)
+volatile bool test_200k_active = false;
+volatile bool test_200k_state = false;
+
+void stopTest200k();
+void startTest200k();
+
 // Note Stack per gestire polifonia in monofonia pulita
 #define MAX_ACTIVE_NOTES 16
 struct ActiveNote {
@@ -116,6 +124,22 @@ uint8_t active_note_count = 0;
 
 // Routine di interrupt hardware del Timer1 (eseguita nella IRAM a 160MHz)
 void IRAM_ATTR onTimer1ISR() {
+    // 1. Modalità Segnale Test 200 kHz continuo (Pin D2 / GPIO 4)
+    if (test_200k_active) {
+        test_200k_state = !test_200k_state;
+        #ifdef GPOS
+        if (test_200k_state) {
+            GPOS = (1 << PIN_TEST_200K);
+        } else {
+            GPOC = (1 << PIN_TEST_200K);
+        }
+        #else
+        digitalWrite(PIN_TEST_200K, test_200k_state ? HIGH : LOW);
+        #endif
+        return;
+    }
+
+    // 2. Modalità Normale Riproduzione MIDI Bobina (Pin D1 / GPIO 5)
     if (current_playing_pitch >= 0 && current_ontime_us > 0) {
         // Genera impulso con On-Time preciso sul pin D1
         #ifdef GPOS
@@ -133,6 +157,9 @@ void IRAM_ATTR onTimer1ISR() {
 void initTimer1Hardware() {
     pinMode(PIN_PWM_OUTPUT, OUTPUT);
     digitalWrite(PIN_PWM_OUTPUT, LOW);
+    
+    pinMode(PIN_TEST_200K, OUTPUT);
+    digitalWrite(PIN_TEST_200K, LOW);
     
     pinMode(PIN_STATUS_LED, OUTPUT);
     digitalWrite(PIN_STATUS_LED, HIGH); // LED spento (attivo LOW)
@@ -152,7 +179,49 @@ void silenceCoilImmediate() {
     digitalWrite(PIN_PWM_OUTPUT, LOW);
     #endif
     
-    digitalWrite(PIN_STATUS_LED, HIGH); // LED spento
+    if (!test_200k_active) {
+        digitalWrite(PIN_STATUS_LED, HIGH); // LED spento
+    }
+}
+
+void startTest200k() {
+    silenceCoilImmediate(); // Silenzia l'uscita interrupter su D1
+    
+    pinMode(PIN_TEST_200K, OUTPUT);
+    digitalWrite(PIN_TEST_200K, LOW);
+    test_200k_state = false;
+    test_200k_active = true;
+    
+    // Configura Timer1 a 80 MHz (TIM_DIV1)
+    // Periodo 200 kHz = 5.0 µs -> semiperiodo 2.5 µs
+    // A 80 MHz (12.5 ns/tick), 2.5 µs = esattamente 200 ticks!
+    timer1_disable();
+    timer1_isr_init();
+    timer1_attachInterrupt(onTimer1ISR);
+    timer1_write(200);
+    timer1_enable(TIM_DIV1, TIM_EDGE, TIM_LOOP);
+    timer_is_active = true;
+    
+    digitalWrite(PIN_STATUS_LED, LOW); // LED blu onboard acceso fisso come avviso
+    Serial.println(F("[TEST] >>> Segnale ad onda quadra 200 kHz ATTIVATO su Pin D2 (GPIO 4) <<<"));
+}
+
+void stopTest200k() {
+    test_200k_active = false;
+    timer1_disable();
+    timer_is_active = false;
+    
+    #ifdef GPOC
+    GPOC = (1 << PIN_TEST_200K);
+    #else
+    digitalWrite(PIN_TEST_200K, LOW);
+    #endif
+    
+    digitalWrite(PIN_STATUS_LED, HIGH); // LED blu spento
+    
+    // Ripristina Timer1 per normale uso MIDI
+    initTimer1Hardware();
+    Serial.println(F("[TEST] >>> Segnale 200 kHz FERMATO. Pin D2 a livello 0. <<<"));
 }
 
 void playToneHardware(unsigned int period_us, int ontime_us) {
@@ -224,12 +293,20 @@ void popNote(uint8_t pitch, uint8_t channel) {
 }
 
 void clearAllNotes() {
+    if (test_200k_active) {
+        stopTest200k();
+    }
     active_note_count = 0;
     silenceCoilImmediate();
     Serial.println(F("[SAFETY] Tutte le note azzerate. Bobina silenziata."));
 }
 
 void updateCoilOutput() {
+    if (test_200k_active) {
+        // Se il segnale di test 200 kHz è attivo, non interferire con le note
+        return;
+    }
+    
     if (active_note_count == 0) {
         silenceCoilImmediate();
         return;
@@ -299,6 +376,12 @@ void handleMidiMessage(uint8_t status, uint8_t data1, uint8_t data2) {
         } else if (ccNumber == 15) { // Config Periodo Minimo (800..2500 us)
             current_period_min_us = (int)map(ccValue, 0, 127, PERIOD_MIN_ABSOLUTE_US, PERIOD_MIN_MAX_US);
             Serial.printf("[CONFIG] Periodo Minimo aggiornato: %d us\n", current_period_min_us);
+        } else if (ccNumber == 16) { // Controllo Segnale Test 200 kHz via MIDI CC
+            if (ccValue >= 64) {
+                startTest200k();
+            } else {
+                stopTest200k();
+            }
         } else if (ccNumber == 120 || ccNumber == 123) { // All Sound Off / All Notes Off
             clearAllNotes();
         }
@@ -319,11 +402,13 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
 <style>
   body { background: #0f111a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center; padding: 20px; }
   h1 { color: #00e5ff; margin-bottom: 5px; }
-  .card { background: #1a1e2e; border: 1px solid #00e5ff33; border-radius: 14px; padding: 20px; max-width: 400px; margin: 20px auto; }
+  .card { background: #1a1e2e; border: 1px solid #00e5ff33; border-radius: 14px; padding: 20px; max-width: 400px; margin: 15px auto; }
   .btn-kill { background: #ff2a2a; color: #fff; font-weight: bold; font-size: 20px; padding: 16px; border: none; border-radius: 12px; width: 100%; cursor: pointer; box-shadow: 0 4px 15px #ff2a2a66; }
   .btn-kill:hover { background: #cc1111; }
-  .badge { display: inline-block; padding: 6px 12px; background: #00e5ff22; color: #00e5ff; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
-  .info { font-size: 14px; color: #8892b0; margin-top: 15px; line-height: 1.6; }
+  .btn-test { background: #00e5ff; color: #0f111a; font-weight: bold; font-size: 16px; padding: 14px; border: none; border-radius: 10px; width: 100%; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+  .btn-test.active { background: #ff9800; color: #fff; }
+  .badge { display: inline-block; padding: 6px 12px; background: #00e5ff22; color: #00e5ff; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
+  .info { font-size: 14px; color: #8892b0; margin-top: 15px; line-height: 1.6; text-align: left; }
 </style>
 </head>
 <body>
@@ -333,12 +418,35 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
   <div class="card">
     <button class="btn-kill" onclick="fetch('/kill')">🛑 ARRESTO EMERGENZA</button>
     <div class="info">
-      Uscita segnale: <b>Pin D1 (GPIO 5)</b><br>
+      Uscita Interrupter: <b>Pin D1 (GPIO 5)</b><br>
       Porta UDP MIDI: <b>5004</b><br>
       IP Bobina: <b>192.168.4.1</b><br>
-      Stato Watchdog: <b>500 ms ATTIVO</b>
+      Watchdog Timeout: <b>500 ms ATTIVO</b>
     </div>
   </div>
+
+  <div class="card">
+    <h3 style="margin-top:0; color:#00e5ff;">🔬 Segnale Test Hardware 200 kHz</h3>
+    <div style="font-size: 13px; color: #8892b0; margin-bottom: 8px;">
+      Onda quadra continua a <b>200 kHz</b> (duty 50%) su <b>Pin D2 (GPIO 4)</b> per testare gate driver, semiponti e risonanza.
+    </div>
+    <button id="btn200k" class="btn-test" onclick="toggleTest200k()">▶ AVVIA SEGNALE 200 kHz</button>
+  </div>
+
+  <script>
+    function toggleTest200k() {
+      fetch('/test200k').then(r => r.text()).then(res => {
+        let b = document.getElementById('btn200k');
+        if (res.indexOf('ON') !== -1) {
+          b.innerText = '⏹ FERMA SEGNALE 200 kHz';
+          b.className = 'btn-test active';
+        } else {
+          b.innerText = '▶ AVVIA SEGNALE 200 kHz';
+          b.className = 'btn-test';
+        }
+      });
+    }
+  </script>
 </body>
 </html>
 )rawliteral";
@@ -350,6 +458,24 @@ void handleRoot() {
 void handleKill() {
     clearAllNotes();
     webServer.send(200, "text/plain", "COIL SILENCED - ALL NOTES OFF");
+}
+
+void handleTest200k() {
+    if (webServer.hasArg("enable")) {
+        int en = webServer.arg("enable").toInt();
+        if (en == 1) {
+            startTest200k();
+        } else {
+            stopTest200k();
+        }
+    } else {
+        if (test_200k_active) {
+            stopTest200k();
+        } else {
+            startTest200k();
+        }
+    }
+    webServer.send(200, "text/plain", test_200k_active ? "200KHZ_ON" : "200KHZ_OFF");
 }
 
 // ==============================================================================
@@ -368,9 +494,9 @@ void setup() {
     Serial.println(F("⚡ Tesla Coil Wi-Fi UDP Interrupter (ESP8266 NodeMCU)"));
     Serial.println(F("=================================================="));
     
-    // 2. Inizializza Timer1 hardware & pin di uscita
+    // 2. Inizializza Timer1 hardware & pin di uscita (D1 e D2)
     initTimer1Hardware();
-    Serial.println(F("[HW] Timer1 inizializzato a 160 MHz su Pin D1 (GPIO 5)"));
+    Serial.println(F("[HW] Interrupter: Pin D1 (GPIO 5) | Test 200kHz: Pin D2 (GPIO 4)"));
     
     // 3. Configura Wi-Fi in modalità Access Point
     WiFi.mode(WIFI_AP);
@@ -391,6 +517,7 @@ void setup() {
     // 5. Avvia Web Server sulla porta 80
     webServer.on("/", handleRoot);
     webServer.on("/kill", handleKill);
+    webServer.on("/test200k", handleTest200k);
     webServer.begin();
     Serial.println(F("[HTTP] Web Server di emergenza avviato su http://192.168.4.1"));
     
@@ -401,7 +528,7 @@ void setup() {
 }
 
 void loop() {
-    // Gestione richieste Web Server (pagina emergenza /kill)
+    // Gestione richieste Web Server (pagina emergenza /kill e /test200k)
     webServer.handleClient();
     
     // Lettura pacchetti UDP MIDI in arrivo
@@ -413,7 +540,7 @@ void loop() {
         if (len >= 2) {
             last_packet_time = millis();
             
-            // 1. Pacchetto Ping dall'app [0xFF, 0x01] -> rispondi con Pong [0xFF, 0x02, ontime, duty, ...]
+            // 1. Pacchetto Ping dall'app [0xFF, 0x01] -> rispondi con Pong
             if (packetBuffer[0] == 0xFF && packetBuffer[1] == 0x01) {
                 uint8_t pong[6] = {
                     0xFF,
@@ -421,7 +548,7 @@ void loop() {
                     (uint8_t)current_ontime_us,
                     (uint8_t)(current_playing_pitch >= 0 ? 1 : 0),
                     (uint8_t)(active_note_count),
-                    0
+                    (uint8_t)(test_200k_active ? 1 : 0) // Byte 5: stato 200 kHz
                 };
                 udp.beginPacket(udp.remoteIP(), udp.remotePort());
                 udp.write(pong, sizeof(pong));
@@ -429,7 +556,17 @@ void loop() {
                 return;
             }
             
-            // 2. Pacchetto MIDI: può essere formato a 5 byte Apple [0x80, 0x80, status, d1, d2]
+            // 2. Pacchetto Controllo Segnale Test 200 kHz: [0xFF, 0x10, <0x01 o 0x00>]
+            if (packetBuffer[0] == 0xFF && packetBuffer[1] == 0x10) {
+                if (len >= 3 && packetBuffer[2] == 0x01) {
+                    startTest200k();
+                } else {
+                    stopTest200k();
+                }
+                return;
+            }
+            
+            // 3. Pacchetto MIDI: può essere formato a 5 byte Apple [0x80, 0x80, status, d1, d2]
             // o formato MIDI standard a 3 byte [status, d1, d2]
             if (len >= 3) {
                 int offset = 0;

@@ -59,25 +59,22 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.8.0
-          name: "TeslaMIDI v1.8.0 - Supporto Dual-Mode: Wi-Fi UDP (ESP8266 NodeMCU) e Bluetooth (ESP32)"
+          tag_name: v1.9.0
+          name: "TeslaMIDI v1.9.0 - Generatore Hardware Segnale Test 200 kHz per Circuiti & Gate Driver"
           body: |
-            ### ⚡ TeslaMIDI v1.8.0 - Bobina di Tesla MIDI Interrupter (Wi-Fi & Bluetooth)
+            ### ⚡ TeslaMIDI v1.9.0 - Supporto Generatore Segnale Hardware 200 kHz
             
-            Novità in v1.8.0:
-            - 📡 **Supporto Completo ESP8266 NodeMCU via Wi-Fi UDP**:
-              - Trasmissione pacchetti MIDI a bassissima latenza via UDP (porta 5004).
-              - Supporto Access Point SoftAP dell'ESP8266 (`TeslaCoil-NodeMCU`) e monitoraggio ping in tempo reale in ms.
-              - Firmware ESP8266 dedicato con **Timer1 hardware a 160 MHz** per la generazione di impulsi con precisione al microsecondo e immunità al jitter Wi-Fi.
-              - Uscita sicura su pin **D1 (GPIO 5)** del NodeMCU.
-              - Web server di emergenza integrato a bordo dell'ESP8266 (`http://192.168.4.1`) con Kill switch.
-            - 🔄 **Selettore Connessione Dual-Mode**:
-              - Passa agevolmente da **Bluetooth (ESP32)** a **Wi-Fi UDP (NodeMCU)** con un tocco.
-              - Indicatori di stato dedicati nella barra superiore (dBm per BLE, ping ms per Wi-Fi) e nella barra di navigazione.
-              - Pulsante di test acustico (440 Hz La) e Kill Switch remoto via Wi-Fi.
-            - 🛡️ **Tutte le protezioni di sicurezza mantenute**:
-              - Watchdog di sicurezza a 500 ms (spegnimento istantaneo se si perde il segnale Wi-Fi o Bluetooth).
-              - Limiti hardware clampati: On-time 10–180 µs, Duty Cycle max 15%.
+            Novità in v1.9.0:
+            - 🔬 **Generatore Hardware Onda Quadra 200 kHz su Pin D2 (GPIO 4)**:
+              - Genera un segnale ad onda quadra continuo a **200 kHz** (duty cycle 50%, periodo 5.0 µs esatti) per il collaudo di gate driver, semiponti H-Bridge, trasformatori GDT e circuiti di risonanza.
+              - Basato sul **Timer1 hardware** ad altissima precisione temporale (tick a 12.5 ns).
+              - Attivabile e disattivabile con un tocco direttamente dall'app iOS o dalla pagina web di emergenza dell'ESP8266 (`http://192.168.4.1/test200k`).
+              - Rimane attivo in modo continuo finché non viene fermato manualmente dall'utente o dall'Arresto di Emergenza (Kill Switch).
+              - Banner di stato in tempo reale nell'interfaccia principale dell'app.
+            - 📡 **Supporto Completo Dual-Mode**:
+              - Wi-Fi UDP a bassissima latenza per ESP8266 NodeMCU (uscita interrupter su **Pin D1**).
+              - Bluetooth BLE per ESP32.
+              - Monitoraggio ping in millisecondi in tempo reale.
             
             Scarica **`TeslaMIDI.ipa`** direttamente da Safari sul tuo iPhone e seleziona **Condividi -> Apri con SideStore** (o AltStore) per installare!
           files: TeslaMIDI.ipa

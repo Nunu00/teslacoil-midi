@@ -233,6 +233,72 @@ public struct BluetoothModalView: View {
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
+                // Sezione Segnale di Test Hardware 200 kHz (Pin D2 / GPIO 4)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.cyan)
+                        Text("SEGNALE TEST HARDWARE 200 kHz")
+                            .font(.caption)
+                            .bold()
+                            .foregroundColor(.gray)
+                        Spacer()
+                        Text("Pin D2")
+                            .font(.caption2)
+                            .bold()
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.cyan.opacity(0.2))
+                            .foregroundColor(.cyan)
+                            .cornerRadius(6)
+                    }
+                    
+                    Text("Genera un'onda quadra continua a circa 200 kHz (duty cycle 50%) sul Pin D2 (GPIO 4) per testare gate driver, ponti inverter e circuiti di risonanza.")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    
+                    Button(action: {
+                        btService.toggleTest200k()
+                    }) {
+                        HStack {
+                            Image(systemName: btService.isTest200kActive ? "stop.circle.fill" : "play.circle.fill")
+                                .font(.title3)
+                            Text(btService.isTest200kActive ? "FERMA SEGNALE 200 kHz" : "AVVIA SEGNALE 200 kHz (CONTINUO)")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            btService.isTest200kActive ?
+                                LinearGradient(colors: [Color.orange, Color.red], startPoint: .leading, endPoint: .trailing) :
+                                LinearGradient(colors: [Color.cyan, Color.blue], startPoint: .leading, endPoint: .trailing)
+                        )
+                        .cornerRadius(12)
+                        .shadow(color: btService.isTest200kActive ? Color.red.opacity(0.5) : Color.cyan.opacity(0.3), radius: 6)
+                    }
+                    
+                    if btService.isTest200kActive {
+                        HStack {
+                            Circle()
+                                .fill(Color.orange)
+                                .frame(width: 8, height: 8)
+                            Text("ATTIVO sul Pin D2 fino a pressione di stop o Kill Switch")
+                                .font(.caption2)
+                                .foregroundColor(.orange)
+                        }
+                    }
+                }
+                .padding()
+                .background(Color(red: 0.12, green: 0.14, blue: 0.20))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(btService.isTest200kActive ? Color.orange.opacity(0.6) : Color.clear, lineWidth: 1)
+                )
+                .padding(.horizontal)
+                
                 // Pulsanti di Test Rapido
                 VStack(spacing: 10) {
                     Button(action: {

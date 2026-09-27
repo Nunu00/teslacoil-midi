@@ -9,13 +9,14 @@ Questo firmware trasforma un **ESP8266 NodeMCU** (o Wemos D1 Mini / ESP-12) in u
 | Pin NodeMCU | GPIO ESP8266 | Funzione | Note |
 |---|---|---|---|
 | **D1** | **GPIO 5** | **Uscita Interrupter Bobina** | Collegare all'ingresso del gate driver / fibra ottica della bobina |
-| **GND** | **GND** | **Massa di Riferimento** | Collegare alla massa del driver della bobina |
-| **D4** | **GPIO 2** | LED di Stato Onboard | Si accende automaticamente quando la bobina suona |
+| **D2** | **GPIO 4** | **Segnale Test 200 kHz** | Onda quadra continua ~200 kHz (50% duty) attivabile da App/Web per testare circuiti/gate driver |
+| **GND** | **GND** | **Massa di Riferimento** | Collegare alla massa del driver / oscilloscopio |
+| **D4** | **GPIO 2** | LED di Stato Onboard | Si accende automaticamente quando la bobina suona o il test 200kHz è attivo |
 | **VIN / 5V** | 5V / USB | Alimentazione | Alimentare tramite presa MicroUSB (5V) |
 
 > [!IMPORTANT]
-> **Perché usiamo il Pin D1 (GPIO 5)?**
-> A differenza dei pin D3 (GPIO 0) e D4 (GPIO 2) che controllano il boot della scheda, il **Pin D1 (GPIO 5)** è completamente neutro, sicuro e non interferisce mai con l'avvio o la programmazione della NodeMCU.
+> **Perché usiamo i Pin D1 (GPIO 5) e D2 (GPIO 4)?**
+> A differenza dei pin D3 (GPIO 0) e D4 (GPIO 2) che controllano il boot della scheda, i pin **D1 (GPIO 5)** e **D2 (GPIO 4)** sono completamente neutri, adiacenti, sicuri e non interferiscono mai con l'avvio o la programmazione della NodeMCU. Possono essere controllati simultaneamente mantenendo il coccodrillo di massa dell'oscilloscopio sempre sullo stesso pin GND adiacente.
 
 ---
 
